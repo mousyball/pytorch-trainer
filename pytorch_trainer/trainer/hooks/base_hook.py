@@ -1,4 +1,6 @@
-# TODO: register
+from pytorch_trainer.utils import Registry
+
+HOOKS = Registry('hook')
 
 class Hook:
 

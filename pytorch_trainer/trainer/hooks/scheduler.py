@@ -1,8 +1,7 @@
-from .base_hook import Hook
-
-# TODO: registry
+from .base_hook import Hook, HOOKS
 
 
+@HOOKS.register_module()
 class SchedulerHook(Hook):
     def __init__(self,
                  interval='step',

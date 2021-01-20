@@ -2,10 +2,10 @@ import os.path as osp
 
 import torch
 
-from .base_hook import Hook
+from .base_hook import Hook, HOOKS
 
 
-# TODO: registry
+@HOOKS.register_module()
 class CheckpointHook(Hook):
 
     def __init__(self,
@@ -55,5 +55,6 @@ class CheckpointHook(Hook):
         if not self.is_n_batches(trainer, self.interval):
             return
 
-        trainer.logger.info('saving batch iter {0}'.format(trainer.batch_iter + 1))
+        trainer.logger.info(
+            'saving batch iter {0}'.format(trainer.batch_iter + 1))
         self._save_checkpoint(trainer, by_epoch=False)
