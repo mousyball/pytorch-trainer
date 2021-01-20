@@ -2,8 +2,6 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:
-    -   id: detect-aws-credentials
-    -   id: detect-private-key
     -   id: check-added-large-files
     -   id: check-merge-conflict
     -   id: check-json
@@ -13,6 +11,8 @@ repos:
     rev: 3.8.4
     hooks:
     -   id: flake8
+        args:
+            - "--max-line-length=120"
         additional_dependencies: [flake8-typing-imports==1.7.0]
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.5.4
