@@ -2,9 +2,11 @@ import os.path as osp
 
 from torch.utils.tensorboard import SummaryWriter
 
+from ..base_hook import HOOKS
 from .base_logger import LoggerHook
 
-# TODO: registry
+
+@HOOKS.register_module()
 class TensorboardLoggerHook(LoggerHook):
     def __init__(self,
                  interval=1,
@@ -32,12 +34,12 @@ class TensorboardLoggerHook(LoggerHook):
         """log loss and lr group every n training epoch"""
         if not self.is_n_epoch(trainer, self.interval):
             return
-        
+
         step = trainer.epoch + 1
         loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
             self.writer.add_scalar('Train/{0}_epoch'.format(key), val, step)
-        
+
         lr_dict = self.get_lr_log(trainer)
         for key, val in lr_dict.items():
             self.writer.add_scalar('LR/{0}_epoch'.format(key), val, step)
@@ -50,12 +52,13 @@ class TensorboardLoggerHook(LoggerHook):
         step = trainer.batch_iter + 1
         loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
-            self.writer.add_scalar('Train/{0}_batch_iter'.format(key), val, step)
-        
+            self.writer.add_scalar(
+                'Train/{0}_batch_iter'.format(key), val, step)
+
         lr_dict = self.get_lr_log(trainer)
         for key, val in lr_dict.items():
             self.writer.add_scalar('LR/{0}_batch_iter'.format(key), val, step)
-    
+
     def after_val_epoch(self, trainer):
         """log loss every evaluation epoch"""
         if trainer.epoch is None:

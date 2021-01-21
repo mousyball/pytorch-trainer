@@ -1,6 +1,7 @@
-from .base_hook import Hook
+from .base_hook import HOOKS, Hook
 
-# TODO: register
+
+@HOOKS.register_module()
 class OptimizerHook(Hook):
 
     def __init__(self, average_grad_period=1):

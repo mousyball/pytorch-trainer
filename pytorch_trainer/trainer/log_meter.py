@@ -1,6 +1,7 @@
 class AverageMeter():
     """A meter is for recording loss status.
     """
+
     def __init__(self):
         self.reset()
 
@@ -15,7 +16,7 @@ class AverageMeter():
         self.sum += value
         self.count += 1
         self._avg = self.sum / self.count
-    
+
     @property
     def avg(self):
         return self._avg
@@ -24,6 +25,7 @@ class AverageMeter():
 class LossMeter():
     """A meter contains serveral meters for recording loss status.
     """
+
     def __init__(self):
         self.meters = None
 
@@ -61,7 +63,7 @@ class LossMeter():
     def clear(self):
         """clear all output in 'LossMeter()'"""
         self.meters = None
-    
+
     def __repr__(self):
         # TODO: better format
         if self.meters is None:

@@ -3,7 +3,6 @@ File taken from https://github.com/open-mmlab/mmcv
 License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
-
 import inspect
 from collections import abc
 
@@ -48,8 +47,8 @@ class Registry:
 
     def __repr__(self):
         format_str = self.__class__.__name__ + \
-                     f'(name={self._name}, ' \
-                     f'items={self._module_dict})'
+            f'(name={self._name}, ' \
+            f'items={self._module_dict})'
         return format_str
 
     @property
@@ -134,4 +133,3 @@ class Registry:
             return cls
 
         return _register
-

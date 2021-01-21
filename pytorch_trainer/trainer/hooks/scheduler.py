@@ -1,8 +1,7 @@
-from .base_hook import Hook
-
-# TODO: registry
+from .base_hook import HOOKS, Hook
 
 
+@HOOKS.register_module()
 class SchedulerHook(Hook):
     def __init__(self,
                  interval='step',
@@ -10,9 +9,9 @@ class SchedulerHook(Hook):
         """step scheduler from trainer by specific interval
 
         Args:
-            interval (str): the period of step scheduler. if interval = 'step' 
-                scheduler step every 'average_grad_period' iteration. otherwise step when
-                calling 'after_train_epoch' or 'after_train_batch'
+            interval (str): the period of step scheduler. if interval = 'step'
+                scheduler step every 'average_grad_period' iteration. otherwise
+                step when calling 'after_train_epoch' or 'after_train_batch'
             average_grad_period (int, optional): [description]. Defaults to 1.
         """
         self.interval = interval

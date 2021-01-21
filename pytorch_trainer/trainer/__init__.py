@@ -1,9 +1,9 @@
 from .hooks import (
-    Hook, OptimizerHook, SchedulerHook, EmptyCacheHook, LoggerHook,
-    CheckpointHook, LossLoggerHook, TensorboardLoggerHook, TextLoggerHook,
+    Hook, LoggerHook, OptimizerHook, SchedulerHook, CheckpointHook,
+    LossLoggerHook, TextLoggerHook, TensorboardLoggerHook
 )
 
 __all__ = [
-    'Hook', 'OptimizerHook', 'SchedulerHook', 'EmptyCacheHook', 'LoggerHook',
-    'CheckpointHook', 'LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook',
+    'Hook', 'OptimizerHook', 'SchedulerHook', 'LoggerHook', 'CheckpointHook',
+    'LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook',
 ]
