@@ -8,9 +8,8 @@ import warnings
 
 import torch
 
-from .base_trainer import BaseTrainer
-from .base_trainer import TRAINER
 from .utils import get_host_info
+from .base_trainer import TRAINER, BaseTrainer
 
 
 @TRAINER.register_module()

@@ -1,4 +1,4 @@
-from .base_hook import Hook, HOOKS
+from .base_hook import HOOKS, Hook
 
 
 @HOOKS.register_module()

@@ -27,4 +27,4 @@ class LossLoggerHook(LoggerHook):
     def after_val_iter(self, trainer):
         # TODO: define loss dict
         loss_dict = trainer.outputs['multi_loss']
-        trainer.loss_meters.update()
+        trainer.loss_meters.update(loss_dict)

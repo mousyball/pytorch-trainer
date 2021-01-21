@@ -6,10 +6,10 @@ https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 import os
 import os.path as osp
 
-from .hooks.base_hook import HOOKS
-from .log_meter import LossMeter
+from ..utils import Registry
 from .priority import get_priority
-from pytorch_trainer.utils import Registry
+from .log_meter import LossMeter
+from .hooks.base_hook import HOOKS
 
 TRAINER = Registry('trainer')
 

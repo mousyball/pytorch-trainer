@@ -2,7 +2,7 @@ import os.path as osp
 
 import torch
 
-from .base_hook import Hook, HOOKS
+from .base_hook import HOOKS, Hook
 
 
 @HOOKS.register_module()

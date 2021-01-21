@@ -1,5 +1,3 @@
-import numpy as np
-
 from ..base_hook import Hook
 
 
