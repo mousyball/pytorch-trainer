@@ -15,57 +15,40 @@ TRAINER = Registry('trainer')
 
 
 class BaseTrainer():
-    """The base class of Trainer, a training helper for PyTorch.
-    All subclasses should implement the following APIs:
-    - ``run()``
-    - ``train()``
-    - ``val()``
-    - ``save_checkpoint()``
-    Args:
-        model (:obj:`torch.nn.Module`): The model to be run.
-        optimizer (dict or :obj:`torch.optim.Optimizer`): It can be either an
-            optimizer (in most cases) or a dict of optimizers (in models that
-            requires more than one optimizer, e.g., GAN).
-        work_dir (str, optional): The working directory to save checkpoints
-            and logs. Defaults to None.
-        logger (:obj:`logging.Logger`): Logger used during training.
-             Defaults to None. (The default value is just for backward
-             compatibility)
-        meta (dict | None): A dict records some import information such as
-            environment info and seed, which will be logged in logger hook.
-            Defaults to None.
-        max_epochs (int, optional): Total training epochs.
-    """
-
     def __init__(self,
                  model,
+                 max_epoch,
                  optimizer=None,
+                 scheduler=None,
                  work_dir=None,
                  logger=None,
-                 meta=None,
-                 max_epoch=None):
+                 meta=None
+                 ):
+        """The base class of Trainer, a training helper for PyTorch.
+        All subclasses should implement the following APIs:
+        - ``fit()``
+        - ``train()``
+        - ``val()``
 
-        # TODO: checker
-        # # check the type of `optimizer`
-        # if not isinstance(optimizer, Optimizer) and optimizer is not None:
-        #     raise TypeError(
-        #         f'optimizer must be a torch.optim.Optimizer object'
-        #         f'or dict or None, but got {type(optimizer)}')
+        Args:
+            model (:obj:`torch.nn.Module`): The model to be run.
+            max_epoch (int): Total training epochs.
+            optimizer (dict or `torch.optim.Optimizer`): It can be either an
+                optimizer (in most cases) or a dict of optimizers (in models that
+                requires more than one optimizer, e.g., GAN).
+            work_dir (str, optional): The working directory to save checkpoints
+                and logs. Defaults to None.
+            logger (`logging.Logger`): Logger used during training. Defaults to None.
+            meta (dict, optional): A dict records meta data. Defaults to None.
+        """
 
-        # # check the type of `logger`
-        # if not isinstance(logger, logging.Logger):
-        #     raise TypeError(f'logger must be a logging.Logger object, '
-        #                     f'but got {type(logger)}')
-
-        # # check the type of `meta`
-        # if meta is not None and not isinstance(meta, dict):
-        #     raise TypeError(
-        #         f'meta must be a dict or None, but got {type(meta)}')
+        # TODO: argument checker
 
         self.model = model
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.logger = logger
-        self.meta = meta  # TODO: discuss meta format
+        self.meta = meta  # TODO: discuss meta format for logging
 
         # create work_dir
         if isinstance(work_dir, str):
@@ -95,8 +78,8 @@ class BaseTrainer():
         return self._epoch
 
     @property
-    def max_epochs(self):
-        return self._max_epochs
+    def max_epoch(self):
+        return self._max_epoch
 
     def call_hook(self, fn_name):
         """Call all hooks by name.
@@ -134,7 +117,7 @@ class BaseTrainer():
     def register_optimizer_hook(self, optimizer_config):
         """mandatory hook"""
         # TODO: builder and assign configure
-        optimizer_hook = HOOKS.get('OptimizerHook')()
+        optimizer_hook = HOOKS.get('OptimizerHook')(**optimizer_config)
         self.register_hook(optimizer_hook, priority='High')
 
     def register_scheduler(self, scheduler_config=None):
@@ -142,15 +125,15 @@ class BaseTrainer():
         if scheduler_config is None:
             return
         # TODO: builder and assign configure
-        scheduler_hook = HOOKS.get('SchedulerHook')()
-        self.register_hook(scheduler_hook)
+        scheduler_hook = HOOKS.get('SchedulerHook')(**scheduler_config)
+        self.register_hook(scheduler_hook, priority='LOWEST')
 
     def register_checkpoint_hook(self, checkpoint_config=None):
         """optional hook"""
         if checkpoint_config is None:
             return
         # TODO: builder  and assign configure
-        checkpoint_hook = HOOKS.get('CheckpointHook')()
+        checkpoint_hook = HOOKS.get('CheckpointHook')(**checkpoint_config)
         self.register_hook(checkpoint_hook)
 
     def register_logger_hooks(self, log_config=None):
@@ -163,8 +146,8 @@ class BaseTrainer():
             log_hook = HOOKS.get(hook_name)()
             self.register_hook(log_hook, priority='VERY_LOW')
 
-    def register_training_hooks(self,
-                                config):
+    def register_callback(self,
+                          config):
         """Register hooks for training.
             append hook into list self.hooks
         """

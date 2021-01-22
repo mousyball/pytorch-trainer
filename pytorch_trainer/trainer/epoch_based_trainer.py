@@ -4,7 +4,6 @@ License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
 import time
-import warnings
 
 import torch
 
@@ -15,6 +14,10 @@ from .base_trainer import TRAINER, BaseTrainer
 @TRAINER.register_module()
 class EpochBasedRunner(BaseTrainer):
     """Epoch-based Trainer."""
+
+    def __init__(self, model, optimizer=None, scheduler=None, work_dir=None, logger=None, meta=None, max_epoch=None):
+        super().__init__(model, optimizer=optimizer, scheduler=scheduler,
+                         work_dir=work_dir, logger=logger, meta=meta, max_epoch=max_epoch)
 
     def train(self, data_loader, **kwargs):
         self.model.train()
@@ -42,9 +45,7 @@ class EpochBasedRunner(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_val_iter')
-            self.run_iter(data_batch, train_mode=False)
-            self.outputs = self.model.val_step(
-                data_batch, self.optimizer, **kwargs)
+            self.outputs = self.model.val_step(data_batch, **kwargs)
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_epoch')
@@ -64,29 +65,19 @@ class EpochBasedRunner(BaseTrainer):
 
         self.logger.info('Start running, host: {0}, work_dir: {1}'.format(
             get_host_info(), self.work_dir))
-        self.logger.info(
-            'workflow: {0}, max: {1:4d} epochs', workflow, self._max_epochs)
+        self.logger.info('workflow: {0}, max: {1:4d} epochs'.format(
+            workflow, self.max_epoch))
 
         self.call_hook('before_run')
-        while self.epoch < self.max_epochs:
+        while self.epoch < self.max_epoch:
             for i, flow in enumerate(workflow):
                 mode, epochs = flow
                 epoch_runner = getattr(self, mode)
 
                 for _ in range(epochs):
-                    if mode == 'train' and self.epoch >= self.max_epochs:
+                    if mode == 'train' and self.epoch >= self.max_epoch:
                         break
                     epoch_runner(data_loaders[i])
 
         time.sleep(1)  # wait for some hooks like loggers to finish
         self.call_hook('after_run')
-
-
-@TRAINER.register_module()
-class Runner(EpochBasedRunner):
-    """Deprecated name of EpochBasedRunner."""
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'Runner was deprecated, please use EpochBasedRunner instead')
-        super().__init__(*args, **kwargs)

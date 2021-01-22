@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 
 from torch.utils.tensorboard import SummaryWriter
@@ -28,6 +29,8 @@ class TensorboardLoggerHook(LoggerHook):
 
         if self.log_dir is None:
             self.log_dir = osp.join(trainer.work_dir, 'tensorboard')
+        if not osp.isdir(self.log_dir):
+            os.makedirs(self.log_dir)
         self.writer = SummaryWriter(log_dir=self.log_dir)
 
     def after_train_epoch(self, trainer):

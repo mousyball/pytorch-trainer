@@ -43,7 +43,7 @@ class LoggerHook(Hook):
 
     def get_loss_log(self, trainer):
         """get train or val loss from trainer"""
-        return {key: val.avg for key, val in trainer.loss_meters.items()}
+        return {key: val.avg for key, val in trainer.loss_meters.meters.items()}
 
     def get_all_logs(self,
                      trainer,
