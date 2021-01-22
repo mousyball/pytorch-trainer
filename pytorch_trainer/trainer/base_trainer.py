@@ -6,6 +6,7 @@ https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 import os
 import os.path as osp
 
+from .utils import get_logger
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
@@ -43,12 +44,13 @@ class BaseTrainer():
         """
 
         # TODO: argument checker
-
+        # TODO: discuss meta format for logging
+        self.meta = meta
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.logger = logger
-        self.meta = meta  # TODO: discuss meta format for logging
+        if logger is None:
+            self.logger = get_logger()
 
         # create work_dir
         if isinstance(work_dir, str):
@@ -76,6 +78,10 @@ class BaseTrainer():
     @property
     def epoch(self):
         return self._epoch
+
+    @property
+    def inner_iter(self):
+        return self._inner_iter
 
     @property
     def max_epoch(self):

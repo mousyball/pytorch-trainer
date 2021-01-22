@@ -1,5 +1,3 @@
-import logging
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -95,9 +93,6 @@ class dummy_config:
 
 
 if __name__ == "__main__":
-    # logging
-    logging.basicConfig(level=logging.INFO)
-
     # model
     model = Net()
 
@@ -119,7 +114,7 @@ if __name__ == "__main__":
                                optimizer=optimizer,
                                scheduler=scheduler,
                                work_dir='./dev/trainer/',
-                               logger=logging,
+                               logger=None,
                                meta={'commit': 'as65sadf45'},
                                max_epoch=20)
 
