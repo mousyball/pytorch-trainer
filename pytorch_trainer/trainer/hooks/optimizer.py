@@ -24,7 +24,7 @@ class OptimizerHook(Hook):
         # TODO: how to call sum of multi-loss
         loss = trainer.outputs['loss']
 
-        loss / self.interval
+        loss /= self.interval
         loss.backward()
         self.avg_grad_cnt += 1
 
