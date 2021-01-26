@@ -32,8 +32,6 @@ class Net(nn.Module):
 
     def train_step(self, batch_data, optimizer):
         inputs, labels = batch_data
-        # zero the parameter gradients
-        optimizer.zero_grad()
 
         # forward
         outputs = self(inputs)
