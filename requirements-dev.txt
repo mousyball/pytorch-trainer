@@ -1,3 +1,4 @@
+torch>=1.7.1
 fvcore
 autopep8
 pre-commit
