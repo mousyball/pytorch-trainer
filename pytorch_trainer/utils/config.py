@@ -1,10 +1,8 @@
 from fvcore.common.config import CfgNode as CN
 
-_C = CN()
-
-_C.RUNNER = CN(new_allowed=True)
-_C.RUNNER.EPOCH = 100
-_C.RUNNER.ITERATION = 1000
+# [NOTE] Default field is free to add any node.
+# Because this base config could be shared among applications, it should be clean to any import.
+_C = CN(new_allowed=True)
 
 
 def get_cfg_defaults():
@@ -12,3 +10,10 @@ def get_cfg_defaults():
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     return _C.clone()
+
+
+def parse_yaml_config(config_path):
+    cfg = get_cfg_defaults()
+    cfg.merge_from_file(config_path)
+    cfg.freeze()
+    return cfg
