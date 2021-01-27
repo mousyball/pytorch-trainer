@@ -1,0 +1,7 @@
+NETWORK:
+  NAME: 'LeNet'
+  BACKBONE:
+    NAME: 'LeNet'
+    PARAM: None
+  BLA:
+    NAME: 'NO'
