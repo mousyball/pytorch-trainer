@@ -2,7 +2,7 @@ from ..base_hook import HOOKS
 from .base_logger import LoggerHook
 
 
-@HOOKS.register_module()
+@HOOKS.register()
 class TextLoggerHook(LoggerHook):
     def __init__(self, interval=500):
         """show current loss every n iterations.

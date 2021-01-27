@@ -6,7 +6,7 @@ import torch
 from .base_hook import HOOKS, Hook
 
 
-@HOOKS.register_module()
+@HOOKS.register()
 class CheckpointHook(Hook):
 
     def __init__(self,
@@ -47,11 +47,11 @@ class CheckpointHook(Hook):
             pass
 
         if by_epoch:
-            save.update(dict(epoch=trainer.epoch+1))
+            save.update(dict(epoch=trainer.epoch + 1))
             ckpt_path = osp.join(
                 self.out_dir, 'epoch_{}.pth'.format(str(trainer.epoch + 1).zfill(3)))
         else:
-            save.update(dict(batch_iter=trainer.batch_iter+1))
+            save.update(dict(batch_iter=trainer.batch_iter + 1))
             ckpt_path = osp.join(
                 self.out_dir, 'batch_iter_{}.pth'.format(str(trainer.batch_iter + 1).zfill(7)))
 

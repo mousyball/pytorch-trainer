@@ -120,16 +120,20 @@ class BaseTrainer():
                 return
         self._hooks.insert(0, hook)
 
-    def register_optimizer_hook(self, optimizer_config):
+    def register_optimizer_hook(self, optimizer_config=None):
         """mandatory hook"""
+        if optimizer_config is None:
+            optimizer_config = dict()
         # TODO: builder and assign configure
         optimizer_hook = HOOKS.get('OptimizerHook')(**optimizer_config)
         self.register_hook(optimizer_hook, priority='High')
 
     def register_scheduler(self, scheduler_config=None):
         """optional hook"""
-        if scheduler_config is None:
+        if self.scheduler is None:
             return
+        elif self.scheduler is not None and scheduler_config is None:
+            scheduler_config = dict()
         # TODO: builder and assign configure
         scheduler_hook = HOOKS.get('SchedulerHook')(**scheduler_config)
         self.register_hook(scheduler_hook, priority='LOWEST')

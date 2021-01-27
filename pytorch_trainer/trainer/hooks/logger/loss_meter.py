@@ -2,7 +2,7 @@ from ..base_hook import HOOKS
 from .base_logger import LoggerHook
 
 
-@HOOKS.register_module()
+@HOOKS.register()
 class LossLoggerHook(LoggerHook):
     """
     loss_meters belongs to trainer rather than LossLoggerHook()'.
