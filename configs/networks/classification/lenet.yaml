@@ -2,6 +2,9 @@ NETWORK:
   NAME: 'LeNet'
   BACKBONE:
     NAME: 'LeNet'
-    PARAM: None
-  BLA:
-    NAME: 'NO'
+    NUM_CLASS: 10
+  LOSS:
+    NAME: 'CrossEntropyLoss'
+    weight: null
+    reduction: 'sum'
+    ignore_index: -87

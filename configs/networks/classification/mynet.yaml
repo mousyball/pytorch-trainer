@@ -1,3 +1,10 @@
 CUSTOM:
   NAME: 'MyLeNet'
-  N_CLASS: 8
+  MODEL:
+    NAME: 'LeNet'
+    NUM_CLASS: 8
+  LOSS:
+    NAME: 'MyLeNetLoss'
+    weight: null
+    reduction: 'mean'
+    ignore_index: -89

@@ -1,32 +1,9 @@
+from pytorch_trainer.utils.builder import build
 from pytorch_trainer.utils.registry import Registry
 
 BACKBONES = Registry('backbone')
 NETWORKS = Registry('network')
 CUSTOMS = Registry('custom')
-
-
-def build(cfg, registry):
-    """Build a network.
-
-    Args:
-        cfg (dict): The config of network.
-        registry (:obj:`Registry`): A registry the module belongs to.
-
-    Returns:
-        nn.Module: A built nn module.
-    """
-    obj_name = cfg.get('NAME')
-
-    if isinstance(obj_name, str):
-        obj_cls = registry.get(obj_name)
-        if obj_cls is None:
-            raise KeyError(
-                f'{obj_name} is not in the {registry.name} registry')
-    else:
-        raise TypeError(
-            f'type must be a str, but got {type(obj_name)}')
-
-    return obj_cls(cfg)
 
 
 def build_backbone(cfg):
