@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+from ...loss import build_loss
 from ..builder import CUSTOMS
 from ..networks.base import BaseNetwork
 
@@ -17,8 +18,8 @@ class MyLeNet(BaseNetwork):
             * Overwrite the parent method if needed.
             * Parameters checking isn't involved if customization is utilized.
         """
-        self.model = LeNet(cfg)
-        self.criterion = nn.CrossEntropyLoss()
+        self.model = LeNet(cfg.MODEL)
+        self.criterion = build_loss(cfg.LOSS)
 
     def get_lr_params(self, group_list):
         """Get LR group for optimizer."""
@@ -40,14 +41,14 @@ class MyLeNet(BaseNetwork):
 class LeNet(nn.Module):
     def __init__(self, cfg):
         super(LeNet, self).__init__()
-        n_class = cfg.get('N_CLASS')
+        num_class = cfg.get('NUM_CLASS')
 
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, n_class)
+        self.fc3 = nn.Linear(84, num_class)
 
     def init_weights(self):
         """Initialize the weights in your network.

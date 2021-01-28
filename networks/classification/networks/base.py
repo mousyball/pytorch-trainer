@@ -1,6 +1,7 @@
 import torch.nn as nn
 
-from ..builder import BACKBONES, build
+from ...loss import build_loss
+from ..builder import build_backbone
 
 
 class INetwork(nn.Module):
@@ -34,18 +35,14 @@ class INetwork(nn.Module):
 
 class BaseNetwork(INetwork):
     def __init__(self):
-        """[NOTE] Define your network in submodule."""
         super(BaseNetwork, self).__init__()
 
     def _construct_network(self, cfg):
-        """Construct network from builder.
-        TODO:
-            * Loss builder?
-        """
+        """Construct network from builder."""
         if 'BACKBONE' not in cfg:
             raise KeyError("Key 'BACKBONE' is not in config.")
-        self.backbone = build(cfg.BACKBONE, BACKBONES)
-        self.criterion = None
+        self.backbone = build_backbone(cfg.BACKBONE)
+        self.criterion = build_loss(cfg.LOSS)
 
     def freeze(self):
         """Freeze components or layers.
