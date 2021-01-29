@@ -12,19 +12,19 @@ from .base_trainer import TRAINER, BaseTrainer
 
 
 @TRAINER.register()
-class EpochBasedRunner(BaseTrainer):
+class EpochBsedTrainer(BaseTrainer):
     """Epoch-based Trainer."""
 
     def __init__(self,
                  model,
+                 max_epoch,
                  optimizer=None,
                  scheduler=None,
                  work_dir=None,
                  logger=None,
-                 meta=None,
-                 max_epoch=None):
-        super().__init__(model, optimizer=optimizer, scheduler=scheduler,
-                         work_dir=work_dir, logger=logger, meta=meta, max_epoch=max_epoch)
+                 meta=None):
+        super().__init__(model, max_epoch=max_epoch, optimizer=optimizer,
+                         scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
 
     def train(self, data_loader, **kwargs):
         self.model.train()
@@ -77,12 +77,12 @@ class EpochBasedRunner(BaseTrainer):
         while self.epoch < self.max_epoch:
             for i, flow in enumerate(workflow):
                 mode, epochs = flow
-                epoch_runner = getattr(self, mode)
+                epoch_trainer = getattr(self, mode)
 
                 for _ in range(epochs):
                     if mode == 'train' and self.epoch >= self.max_epoch:
                         break
-                    epoch_runner(data_loaders[i])
+                    epoch_trainer(data_loaders[i])
 
         time.sleep(1)  # wait for some hooks like loggers to finish
         self.call_hook('after_run')

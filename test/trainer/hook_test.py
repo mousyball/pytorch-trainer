@@ -10,7 +10,7 @@ from torch import optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import StepLR
 
-from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedRunner
+from pytorch_trainer.trainer.epoch_based_trainer import EpochBsedTrainer
 
 
 class config:
@@ -35,7 +35,7 @@ def test_optimzier_hook(cfg, expected):
     model = Model()
     data_loader = DataLoader(torch.ones((5, 2)))
 
-    trainer = EpochBasedRunner(model,
+    trainer = EpochBsedTrainer(model,
                                optimizer=optim.SGD(
                                    model.parameters(), lr=0.02),
                                max_epoch=5)
@@ -55,7 +55,7 @@ def test_scheduler_hook(cfg, expected):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     scheduler = StepLR(optimizer, step_size=2, gamma=0.2)
 
-    trainer = EpochBasedRunner(model,
+    trainer = EpochBsedTrainer(model,
                                optimizer=optimizer,
                                scheduler=scheduler,
                                max_epoch=2)
@@ -73,7 +73,7 @@ def test_checkpoint_hook(cfg, expected):
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
 
-    trainer = EpochBasedRunner(model,
+    trainer = EpochBsedTrainer(model,
                                optimizer=optimizer,
                                work_dir=work_dir,
                                max_epoch=2)

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
-from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedRunner
+from pytorch_trainer.trainer.epoch_based_trainer import EpochBsedTrainer
 
 
 class Net(nn.Module):
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     scheduler = StepLR(optimizer, step_size=5, gamma=0.2)
 
     # initial trainer
-    trainer = EpochBasedRunner(model,
+    trainer = EpochBsedTrainer(model,
                                optimizer=optimizer,
                                scheduler=scheduler,
                                work_dir='./dev/trainer/',
