@@ -52,26 +52,29 @@ class TensorboardLoggerHook(LoggerHook):
         if not self.is_n_batch(trainer, self.interval):
             return
 
-        step = trainer.batch_iter + 1
+        step = trainer.iter + 1
         loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
             self.writer.add_scalar(
-                'Train/{0}_batch_iter'.format(key), val, step)
+                'Train/{0}_iter'.format(key), val, step)
 
         lr_dict = self.get_lr_log(trainer)
         for key, val in lr_dict.items():
-            self.writer.add_scalar('LR/{0}_batch_iter'.format(key), val, step)
+            self.writer.add_scalar('LR/{0}_iter'.format(key), val, step)
 
     def after_val_epoch(self, trainer):
         """log loss every evaluation epoch"""
-        if trainer.epoch is None:
-            step = trainer.batch_iter
-        else:
-            step = trainer.epoch
 
         loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
-            self.writer.add_scalar('Val/{0}_epoch'.format(key), val, step)
+            self.writer.add_scalar(
+                'Val/{0}_epoch'.format(key), val, trainer.epoch + 1)
+
+    def after_val_batch(self, trainer):
+        loss_dict = self.get_loss_log(trainer)
+        for key, val in loss_dict.items():
+            self.writer.add_scalar(
+                'Val/{0}_iter'.format(key), val, trainer.iter + 1)
 
     def after_run(self, trainer):
         self.writer.close()

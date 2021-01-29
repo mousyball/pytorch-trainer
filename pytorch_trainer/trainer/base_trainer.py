@@ -18,7 +18,8 @@ TRAINER = Registry('trainer')
 class BaseTrainer():
     def __init__(self,
                  model,
-                 max_epoch,
+                 max_iter=0,
+                 max_epoch=0,
                  optimizer=None,
                  scheduler=None,
                  work_dir=None,
@@ -71,17 +72,27 @@ class BaseTrainer():
         self.mode = None
         self._hooks = []
         self._epoch = 0
-        self._inner_iter = 0
         self._max_epoch = max_epoch
+        self._iter = 0
+        self._inner_iter = 0
+        self._max_iter = max_iter
         self.loss_meters = LossMeter()
 
     @property
-    def epoch(self):
-        return self._epoch
+    def iter(self):
+        return self._iter
 
     @property
     def inner_iter(self):
         return self._inner_iter
+
+    @property
+    def max_iter(self):
+        return self._max_iter
+
+    @property
+    def epoch(self):
+        return self._epoch
 
     @property
     def max_epoch(self):

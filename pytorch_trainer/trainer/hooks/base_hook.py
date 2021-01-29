@@ -46,9 +46,14 @@ class Hook:
     def after_val_epoch(self, trainer):
         pass
 
+    def before_val_batch(self, trainer):
+        pass
+
+    def after_val_batch(self, trainer):
+        pass
+
     def is_n_epoch(self, trainer, n):
         return (trainer.epoch + 1) % n == 0 if n > 0 else False
 
-    def is_n_batches(self, trainer, n):
-        # TODO:
-        raise NotImplementedError
+    def is_n_batch(self, trainer, n):
+        return (trainer.iter + 1) % n == 0 if n > 0 else False

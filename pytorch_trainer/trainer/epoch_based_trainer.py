@@ -17,13 +17,14 @@ class EpochBsedTrainer(BaseTrainer):
 
     def __init__(self,
                  model,
-                 max_epoch,
+                 max_iter=0,
+                 max_epoch=0,
                  optimizer=None,
                  scheduler=None,
                  work_dir=None,
                  logger=None,
                  meta=None):
-        super().__init__(model, max_epoch=max_epoch, optimizer=optimizer,
+        super().__init__(model, max_iter=max_iter, max_epoch=max_epoch, optimizer=optimizer,
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
 
     def train(self, data_loader, **kwargs):

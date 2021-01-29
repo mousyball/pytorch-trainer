@@ -28,7 +28,7 @@ class LoggerHook(Hook):
 
     def get_iter(self, trainer):
         """Get the current training iteration step."""
-        return trainer.batch_iter + 1
+        return trainer.iter + 1
 
     def get_inner_iter(self, trainer):
         """Get the current training iteration step within epochs.
