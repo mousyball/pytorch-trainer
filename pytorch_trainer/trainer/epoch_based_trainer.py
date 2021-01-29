@@ -11,11 +11,18 @@ from .utils import get_host_info
 from .base_trainer import TRAINER, BaseTrainer
 
 
-@TRAINER.register_module()
+@TRAINER.register()
 class EpochBasedRunner(BaseTrainer):
     """Epoch-based Trainer."""
 
-    def __init__(self, model, optimizer=None, scheduler=None, work_dir=None, logger=None, meta=None, max_epoch=None):
+    def __init__(self,
+                 model,
+                 optimizer=None,
+                 scheduler=None,
+                 work_dir=None,
+                 logger=None,
+                 meta=None,
+                 max_epoch=None):
         super().__init__(model, optimizer=optimizer, scheduler=scheduler,
                          work_dir=work_dir, logger=logger, meta=meta, max_epoch=max_epoch)
 
@@ -28,8 +35,7 @@ class EpochBasedRunner(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_train_iter')
-            self.outputs = self.model.train_step(
-                data_batch, self.optimizer, **kwargs)
+            self.outputs = self.model.train_step(data_batch, **kwargs)
             self.call_hook('after_train_iter')
 
         self.call_hook('after_train_epoch')
@@ -62,7 +68,6 @@ class EpochBasedRunner(BaseTrainer):
                 validation, iteratively.
         """
         # TODO: data_loader / workflow format tbd
-
         self.logger.info('Start running, host: {0}, work_dir: {1}'.format(
             get_host_info(), self.work_dir))
         self.logger.info('workflow: {0}, max: {1:4d} epochs'.format(

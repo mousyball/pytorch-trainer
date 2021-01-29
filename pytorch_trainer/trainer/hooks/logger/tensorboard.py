@@ -7,7 +7,7 @@ from ..base_hook import HOOKS
 from .base_logger import LoggerHook
 
 
-@HOOKS.register_module()
+@HOOKS.register()
 class TensorboardLoggerHook(LoggerHook):
     def __init__(self,
                  interval=1,

@@ -1,7 +1,7 @@
 from .base_hook import HOOKS, Hook
 
 
-@HOOKS.register_module()
+@HOOKS.register()
 class SchedulerHook(Hook):
     def __init__(self,
                  mode='other',

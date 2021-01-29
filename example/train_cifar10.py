@@ -30,7 +30,7 @@ class Net(nn.Module):
             if 'fc' in name:
                 yield param
 
-    def train_step(self, batch_data, optimizer):
+    def train_step(self, batch_data):
         inputs, labels = batch_data
 
         # forward
