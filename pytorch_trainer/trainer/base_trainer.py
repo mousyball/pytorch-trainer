@@ -6,7 +6,7 @@ https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 import os
 import os.path as osp
 
-from .utils import get_logger
+from .utils import get_logger, sync_counter
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
@@ -106,6 +106,11 @@ class BaseTrainer():
         """
         for hook in self._hooks:
             getattr(hook, fn_name)(self)
+
+    @sync_counter
+    def call_hook_with_sync(self, fn_name):
+        """sync iteration and epoch version of call_hook"""
+        self.call_hook(fn_name)
 
     def register_hook(self, hook, priority='NORMAL'):
         """Register a hook into the hook list.

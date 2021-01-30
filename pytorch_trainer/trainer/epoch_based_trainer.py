@@ -7,7 +7,7 @@ import time
 
 import torch
 
-from .utils import get_host_info
+from .utils import get_host_info, sync_counter
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -43,6 +43,7 @@ class EpochBsedTrainer(BaseTrainer):
         self._epoch += 1
 
     @torch.no_grad()
+    @sync_counter
     def val(self, data_loader, **kwargs):
         self.model.eval()
         self.mode = 'val'

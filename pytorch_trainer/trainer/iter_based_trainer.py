@@ -2,7 +2,7 @@ import time
 
 import torch
 
-from .utils import IterDataLoader, get_host_info
+from .utils import IterDataLoader, get_host_info, sync_counter
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -43,13 +43,11 @@ class IterBasedTrainer(BaseTrainer):
             if self.iter >= self.max_iter:
                 break
 
-        self._iter -= 1  # make self._iter has same value in all hooks
-        self.call_hook('after_train_batch')
-        self._iter += 1
+        self.call_hook_with_sync('after_train_batch')
 
     @torch.no_grad()
+    @sync_counter
     def val(self, data_loader, **kwargs):
-        self._iter -= 1  # make self._iter has same value in all hooks
         self.mode = 'val'
         self.model.eval()
         self.call_hook('before_val_batch')
@@ -61,7 +59,6 @@ class IterBasedTrainer(BaseTrainer):
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_batch')
-        self._iter += 1
 
     def fit(self, data_loaders, workflow):
         """Start training

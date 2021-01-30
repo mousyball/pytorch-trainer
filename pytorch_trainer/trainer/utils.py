@@ -62,3 +62,15 @@ class IterDataLoader:
 
     def __len__(self):
         return len(self._dataloader)
+
+def sync_counter(func):
+    """make sure all iteration and epoch have same value in all hooks"""
+    # TODO: write example or document
+    def wrap(*args, **kwargs):
+        args[0]._iter -= 1
+        args[0]._epoch -= 1
+        func(*args, **kwargs)
+        args[0]._iter += 1
+        args[0]._epoch += 1
+
+    return wrap
