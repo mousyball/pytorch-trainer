@@ -2,7 +2,7 @@ import time
 
 import torch
 
-from .utils import IterDataLoader, get_host_info, sync_counter
+from .utils import IterDataLoader, sync_counter, get_host_info
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -13,13 +13,12 @@ class IterBasedTrainer(BaseTrainer):
     def __init__(self,
                  model,
                  max_iter=0,
-                 max_epoch=0,
                  optimizer=None,
                  scheduler=None,
                  work_dir=None,
                  logger=None,
                  meta=None):
-        super().__init__(model, max_iter=max_iter, max_epoch=max_epoch, optimizer=optimizer,
+        super().__init__(model, max_iter=max_iter, optimizer=optimizer,
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
         self._max_inner_iter = 0
 
