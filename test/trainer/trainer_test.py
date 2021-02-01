@@ -4,7 +4,7 @@ import torch.nn as nn
 from pytorch_trainer.trainer.hooks import (
     OptimizerHook, SchedulerHook, CheckpointHook
 )
-from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedRunner
+from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedTrainer
 
 
 class Model(nn.Module):
@@ -42,7 +42,7 @@ class Test_register_callback():
     ])
     def test_regist_optimizer_hook(self, cfg):
         model = Model()
-        trainer = EpochBasedRunner(model)
+        trainer = EpochBasedTrainer(model)
 
         cfg = config()
         trainer.register_callback(cfg)
@@ -60,8 +60,8 @@ class Test_register_callback():
     ])
     def test_regist_scheduler_hook(self, cfg):
         model = Model()
-        trainer = EpochBasedRunner(model,
-                                   scheduler='not_none')
+        trainer = EpochBasedTrainer(model,
+                                    scheduler='not_none')
 
         trainer.register_callback(cfg)
         for hook in trainer._hooks:
@@ -77,7 +77,7 @@ class Test_register_callback():
     ])
     def test_regist_checkpoint_hook(self, cfg):
         model = Model()
-        trainer = EpochBasedRunner(model)
+        trainer = EpochBasedTrainer(model)
 
         trainer.register_callback(cfg)
         for hook in trainer._hooks:
@@ -94,8 +94,8 @@ class Test_register_callback():
     ])
     def test_regist_all(self, scheduler, expected):
         model = Model()
-        trainer = EpochBasedRunner(model,
-                                   scheduler=scheduler)
+        trainer = EpochBasedTrainer(model,
+                                    scheduler=scheduler)
 
         cfg = config(optimizer_config=dict(interval=1),
                      scheduler_config=dict(mode='other', interval=1),

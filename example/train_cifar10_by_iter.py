@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
-from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedTrainer
+from pytorch_trainer.trainer.iter_based_trainer import IterBasedTrainer
 
 
 class Net(nn.Module):
@@ -108,17 +108,17 @@ if __name__ == "__main__":
     scheduler = StepLR(optimizer, step_size=5, gamma=0.2)
 
     # initial trainer
-    trainer = EpochBasedTrainer(model,
-                                optimizer=optimizer,
-                                scheduler=scheduler,
-                                work_dir='./dev/trainer/',
-                                logger=None,
-                                meta={'commit': 'as65sadf45'},
-                                max_epoch=20)
+    trainer = IterBasedTrainer(model,
+                               optimizer=optimizer,
+                               scheduler=scheduler,
+                               work_dir='./dev/trainer/',
+                               logger=None,
+                               meta={'commit': 'as65sadf45'},
+                               max_iter=5000)
 
     # register all callback
     trainer.register_callback(dummy_config())
 
     # training
     trainer.fit(data_loaders=[train_loader, val_loader],
-                workflow=[('train', 2), ('val', 1)])
+                workflow=[('train', 500), ('val', -1)])

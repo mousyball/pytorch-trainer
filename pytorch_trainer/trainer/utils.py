@@ -43,3 +43,34 @@ def get_logger(path='log/', file_name=None, logger_name='trainer'):
     logger.setLevel(logging.INFO)
 
     return logger
+
+
+class IterDataLoader:
+
+    def __init__(self, dataloader):
+        self._dataloader = dataloader
+        self.iter_loader = iter(self._dataloader)
+
+    def __next__(self):
+        try:
+            data = next(self.iter_loader)
+        except StopIteration:
+            self.iter_loader = iter(self._dataloader)
+            data = next(self.iter_loader)
+
+        return data
+
+    def __len__(self):
+        return len(self._dataloader)
+
+def sync_counter(func):
+    """make sure all iteration and epoch have same value in all hooks"""
+    # TODO: write example or document
+    def wrap(*args, **kwargs):
+        args[0]._iter -= 1
+        args[0]._epoch -= 1
+        func(*args, **kwargs)
+        args[0]._iter += 1
+        args[0]._epoch += 1
+
+    return wrap

@@ -10,7 +10,7 @@ from torch import optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import StepLR
 
-from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedRunner
+from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedTrainer
 
 
 class config:
@@ -35,10 +35,10 @@ def test_optimzier_hook(cfg, expected):
     model = Model()
     data_loader = DataLoader(torch.ones((5, 2)))
 
-    trainer = EpochBasedRunner(model,
-                               optimizer=optim.SGD(
-                                   model.parameters(), lr=0.02),
-                               max_epoch=5)
+    trainer = EpochBasedTrainer(model,
+                                optimizer=optim.SGD(
+                                    model.parameters(), lr=0.02),
+                                max_epoch=5)
     trainer.register_callback(cfg)
     trainer.fit([data_loader], [('train', 1)])
     assert round(trainer.outputs['loss'].item(), 2) == expected
@@ -55,10 +55,10 @@ def test_scheduler_hook(cfg, expected):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     scheduler = StepLR(optimizer, step_size=2, gamma=0.2)
 
-    trainer = EpochBasedRunner(model,
-                               optimizer=optimizer,
-                               scheduler=scheduler,
-                               max_epoch=2)
+    trainer = EpochBasedTrainer(model,
+                                optimizer=optimizer,
+                                scheduler=scheduler,
+                                max_epoch=2)
     trainer.register_callback(cfg)
     trainer.fit([data_loader], [('train', 1)])
     assert trainer.optimizer.param_groups[0]['lr'] == expected
@@ -73,10 +73,10 @@ def test_checkpoint_hook(cfg, expected):
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
 
-    trainer = EpochBasedRunner(model,
-                               optimizer=optimizer,
-                               work_dir=work_dir,
-                               max_epoch=2)
+    trainer = EpochBasedTrainer(model,
+                                optimizer=optimizer,
+                                work_dir=work_dir,
+                                max_epoch=2)
     trainer.register_callback(cfg)
     trainer.fit([data_loader], [('train', 1)])
     output_path = osp.join(work_dir, 'checkpoint', '*.pth')

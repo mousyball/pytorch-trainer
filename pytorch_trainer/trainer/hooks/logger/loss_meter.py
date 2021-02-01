@@ -24,6 +24,9 @@ class LossLoggerHook(LoggerHook):
     def before_val_epoch(self, trainer):
         trainer.loss_meters.clear()
 
+    def before_val_batch(self, trainer):
+        trainer.loss_meters.clear()
+
     def after_val_iter(self, trainer):
         # TODO: define loss dict
         loss_dict = trainer.outputs['multi_loss']

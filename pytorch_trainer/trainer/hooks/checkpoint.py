@@ -51,9 +51,9 @@ class CheckpointHook(Hook):
             ckpt_path = osp.join(
                 self.out_dir, 'epoch_{}.pth'.format(str(trainer.epoch + 1).zfill(3)))
         else:
-            save.update(dict(batch_iter=trainer.batch_iter + 1))
+            save.update(dict(iter=trainer.iter + 1))
             ckpt_path = osp.join(
-                self.out_dir, 'batch_iter_{}.pth'.format(str(trainer.batch_iter + 1).zfill(7)))
+                self.out_dir, 'iter_{}.pth'.format(str(trainer.iter + 1).zfill(7)))
 
         torch.save(save, ckpt_path)
 
@@ -65,9 +65,9 @@ class CheckpointHook(Hook):
         self._save_checkpoint(trainer, by_epoch=True)
 
     def after_train_batch(self, trainer):
-        if not self.is_n_batches(trainer, self.interval):
+        if not self.is_n_batch(trainer, self.interval):
             return
 
         trainer.logger.info(
-            'saving batch iter {0}'.format(trainer.batch_iter + 1))
+            'saving batch iter {0}'.format(trainer.iter + 1))
         self._save_checkpoint(trainer, by_epoch=False)
