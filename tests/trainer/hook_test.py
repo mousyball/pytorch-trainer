@@ -79,11 +79,12 @@ def test_checkpoint_hook(cfg, expected):
                                 max_epoch=2)
     trainer.register_callback(cfg)
     trainer.fit([data_loader], [('train', 1)])
-    output_path = osp.join(work_dir, 'checkpoint', '*.pth')
+    output_path = osp.join(trainer.work_dir, 'checkpoint', '*.pth')
 
     assert osp.basename(glob(output_path)[0]) == expected
 
     shutil.rmtree(work_dir)
+    shutil.rmtree(trainer.work_dir)
 
 
 # TODO: logger hook test

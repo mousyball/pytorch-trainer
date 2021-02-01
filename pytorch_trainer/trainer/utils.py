@@ -11,6 +11,9 @@ def get_host_info():
 
 
 def get_logger(path='log/', file_name=None, logger_name='trainer'):
+    # get logger
+    logger = logging.getLogger(logger_name)
+
     # format logging message
     formater = "[%(levelname)-8s][%(asctime)s][%(name)-8s]: %(message)s"
     formater = logging.Formatter(formater)
@@ -22,24 +25,23 @@ def get_logger(path='log/', file_name=None, logger_name='trainer'):
     else:
         log_filename = '{0}_{1}'.format(file_name, date_string)
 
-    # make directory
-    if not osp.isdir(path):
-        os.makedirs(path)
-    log_filename = os.path.join(path, log_filename)
+    if path is not None:
+        # make directory
+        if not osp.isdir(path):
+            os.makedirs(path)
+        log_filename = os.path.join(path, log_filename)
 
-    # init file handler
-    file_handler = logging.FileHandler(
-        log_filename, mode='a', encoding='utf-8')
-    file_handler.setFormatter(formater)
+        # init file handler
+        file_handler = logging.FileHandler(
+            log_filename, mode='a', encoding='utf-8')
+        file_handler.setFormatter(formater)
+        logger.addHandler(file_handler)
 
     # init stream handler
     console = logging.StreamHandler()
     console.setFormatter(formater)
-
-    # get logger
-    logger = logging.getLogger(logger_name)
     logger.addHandler(console)
-    logger.addHandler(file_handler)
+
     logger.setLevel(logging.INFO)
 
     return logger
@@ -62,6 +64,7 @@ class IterDataLoader:
 
     def __len__(self):
         return len(self._dataloader)
+
 
 def sync_counter(func):
     """make sure all iteration and epoch have same value in all hooks"""
