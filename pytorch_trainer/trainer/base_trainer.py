@@ -102,6 +102,21 @@ class BaseTrainer():
     def max_epoch(self):
         return self._max_epoch
 
+    def _loss_parser(self, output):
+        """sum losses in output
+
+        Args:
+            output (dict): example dict(cls_loss=float, regr_loss=float)
+        Returns:
+            dict: dictionary include loss(total loss) and multi_loss(rest of losses)
+        """
+        total_loss = 0
+        for value in output.values():
+            total_loss += value
+
+        return dict(loss=total_loss,
+                    multi_loss=output)
+
     def call_hook(self, fn_name):
         """Call all hooks by name.
         Args:
