@@ -12,8 +12,8 @@ def get_cfg_defaults():
     return _C.clone()
 
 
-def parse_yaml_config(config_path):
+def parse_yaml_config(config_path, allow_unsafe=False):
     cfg = get_cfg_defaults()
-    cfg.merge_from_file(config_path)
+    cfg.merge_from_file(config_path, allow_unsafe)
     cfg.freeze()
     return cfg
