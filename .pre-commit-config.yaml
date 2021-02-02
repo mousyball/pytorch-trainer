@@ -6,6 +6,8 @@ repos:
     -   id: check-merge-conflict
     -   id: check-json
     -   id: check-yaml
+        args:
+            - "--unsafe"
     -   id: trailing-whitespace
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
