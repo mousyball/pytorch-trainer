@@ -17,7 +17,7 @@ class IBackbone(nn.Module):
 class BaseBackbone(IBackbone):
     def __init__(self):
         """[NOTE] Define your network in submodule."""
-        super(IBackbone, self).__init__()
+        super(BaseBackbone, self).__init__()
 
     def init_weights(self):
         """Initialize the weights in your network.
