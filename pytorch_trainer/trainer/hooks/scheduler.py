@@ -4,14 +4,13 @@ from .base_hook import HOOKS, Hook
 @HOOKS.register()
 class SchedulerHook(Hook):
     def __init__(self,
-                 mode='other',
+                 mode='default',
                  interval=1):
         """step scheduler from trainer by specific interval
 
         Args:
-            mode (str): the period of step scheduler. if interval = 'step'
-                scheduler step every 'interval' iteration. otherwise
-                step when calling 'after_train_epoch' or 'after_train_batch'
+            mode (str): If interval = 'step' scheduler step every 'interval' iteration.
+                otherwise step when calling 'after_train_epoch' or 'after_train_batch'
             interval (int, optional): step scheduler every n interval. Defaults to 1.
         """
         self.mode = mode

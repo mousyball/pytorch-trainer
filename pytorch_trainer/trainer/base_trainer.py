@@ -144,8 +144,6 @@ class BaseTrainer():
 
         """
         # assert isinstance(hook(), Hook)
-        if hasattr(hook, 'priority'):
-            raise ValueError('"priority" is a reserved attribute for hooks')
 
         hook.priority = get_priority(priority)
         # insert the hook to a sorted list

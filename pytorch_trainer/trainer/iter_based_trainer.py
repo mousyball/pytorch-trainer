@@ -88,7 +88,7 @@ class IterBasedTrainer(BaseTrainer):
                     break
                 # assign maximum inner iteration
                 if iterations == -1:
-                    self._max_inner_iter = len(data_loaders)
+                    self._max_inner_iter = len(data_loaders[i])
                 else:
                     self._max_inner_iter = iterations
 
