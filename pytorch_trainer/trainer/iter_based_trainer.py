@@ -26,6 +26,9 @@ class IterBasedTrainer(BaseTrainer):
     def max_inner_iter(self):
         return self._max_inner_iter
 
+    def make_iterator(self, data_loaders):
+        return [IterDataLoader(data_loader) for data_loader in data_loaders]
+
     def train(self, data_loader, **kwargs):
         self.mode = 'train'
         self.model.train()
@@ -79,13 +82,13 @@ class IterBasedTrainer(BaseTrainer):
         self.logger.info('workflow: {0}, max: {1:4d} iterations'.format(
             workflow, self.max_iter))
 
+        data_loaders = self.make_iterator(data_loaders)
+
         self.call_hook('before_run')
         while self.iter < self.max_iter:
             for i, flow in enumerate(workflow):
                 mode, iterations = flow
-                # check if is max iteration
-                if mode == 'train' and self.iter >= self.max_iter:
-                    break
+
                 # assign maximum inner iteration
                 if iterations == -1:
                     self._max_inner_iter = len(data_loaders[i])
@@ -93,4 +96,4 @@ class IterBasedTrainer(BaseTrainer):
                     self._max_inner_iter = iterations
 
                 iter_trainer = getattr(self, mode)
-                iter_trainer(IterDataLoader(data_loaders[i]))
+                iter_trainer(data_loaders[i])

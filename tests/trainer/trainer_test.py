@@ -67,12 +67,14 @@ class Test_epoch_based_trainer:
     data_loader = DataLoader(torch.ones((1, 2)))
 
     def test_val(self):
+        self.trainer._epoch = 0
         self.trainer.fit([self.data_loader, self.data_loader], [
                          ('train', 1), ('val', 1)])
 
         assert round(self.trainer.outputs['loss'].item(), 2) == 1.1
 
     def test_flow(self):
+        self.trainer._epoch = 0
         self.trainer.fit([self.data_loader], [('train', 2)])
 
         assert self.trainer.epoch == 1
@@ -99,6 +101,14 @@ class Test_iter_based_trainer:
         self.trainer.fit([DataLoader(torch.ones((5, 2)))], [('train', -1)])
 
         assert self.trainer.max_inner_iter == 5
+
+    def test_data_loader(self):
+        self.trainer._iter = 0
+        self.trainer._max_iter = 2
+        data_loader = DataLoader(torch.arange(4).view(2, 2).type(torch.float))
+        self.trainer.fit([data_loader], [('train', 1)])
+
+        assert round(self.trainer.outputs['loss'].item(), 1) == 1.3
 
 
 class Test_register_callback():
