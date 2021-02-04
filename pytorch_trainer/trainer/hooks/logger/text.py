@@ -33,15 +33,13 @@ class TextLoggerHook(LoggerHook):
         self.interval_cnt = 0
 
     def _epoch_based_log(self, trainer):
-        # TODO: how to call sum of multi-loss
-        loss_dict = trainer.outputs['multi_loss']
+        loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
             trainer.logger.info('epoch-{0} | iter-{1:6d} | {2:8s}:{3:5f}'.format(
                 trainer.epoch + 1, trainer.inner_iter + 1, key, val))
 
     def _iter_based_log(self, trainer):
-        # TODO: how to call sum of multi-loss
-        loss_dict = trainer.outputs['multi_loss']
+        loss_dict = self.get_loss_log(trainer)
         for key, val in loss_dict.items():
             trainer.logger.info('| iter-{0:8d} | {1:8s}:{2:5f}'.format(
                 trainer.iter + 1, key, val))

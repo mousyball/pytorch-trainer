@@ -1,0 +1,14 @@
+LOGGER_HOOK:
+  NAME:
+    - LossLoggerHook
+    - TensorboardLoggerHook
+    - TextLoggerHook
+
+  LossLoggerHook:
+    priority: LOW
+  TensorboardLoggerHook:
+    priority: LOWEST
+    interval: 1
+  TextLoggerHook:
+    priority: LOWEST
+    interval: 500

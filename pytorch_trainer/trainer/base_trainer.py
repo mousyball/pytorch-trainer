@@ -113,6 +113,7 @@ class BaseTrainer():
         total_loss = 0
         for value in output.values():
             total_loss += value
+        output['loss'] = total_loss
 
         return dict(loss=total_loss,
                     multi_loss=output)
@@ -153,48 +154,21 @@ class BaseTrainer():
                 return
         self._hooks.insert(0, hook)
 
-    def register_optimizer_hook(self, optimizer_config=None):
-        """mandatory hook"""
-        if optimizer_config is None:
-            optimizer_config = dict()
-        # TODO: builder and assign configure
-        optimizer_hook = HOOKS.get('OptimizerHook')(**optimizer_config)
-        self.register_hook(optimizer_hook, priority='High')
+    def _register_hook(self, config):
+        for name in config.get('NAME'):
+            # get arguments
+            kwargs = config.get(name)
+            priority = kwargs.pop('priority')
 
-    def register_scheduler(self, scheduler_config=None):
-        """optional hook"""
-        if self.scheduler is None:
-            return
-        elif self.scheduler is not None and scheduler_config is None:
-            scheduler_config = dict()
-        # TODO: builder and assign configure
-        scheduler_hook = HOOKS.get('SchedulerHook')(**scheduler_config)
-        self.register_hook(scheduler_hook, priority='LOWEST')
-
-    def register_checkpoint_hook(self, checkpoint_config=None):
-        """optional hook"""
-        if checkpoint_config is None:
-            return
-        # TODO: builder  and assign configure
-        checkpoint_hook = HOOKS.get('CheckpointHook')(**checkpoint_config)
-        self.register_hook(checkpoint_hook)
-
-    def register_logger_hooks(self, log_config=None):
-        """optional hook"""
-        if log_config is None:
-            return
-        # # TODO: builder  and assign configure
-        # for config in log_config:
-        for hook_name in ['LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook']:
-            log_hook = HOOKS.get(hook_name)()
-            self.register_hook(log_hook, priority='VERY_LOW')
+            # get function
+            log_hook = HOOKS.get(name)(**kwargs)
+            self.register_hook(log_hook, priority=priority)
 
     def register_callback(self,
                           config):
         """Register hooks for training.
             append hook into list self.hooks
         """
-        self.register_optimizer_hook(config.optimizer_config)
-        self.register_scheduler(config.scheduler_config)
-        self.register_checkpoint_hook(config.checkpoint_config)
-        self.register_logger_hooks(config.log_config)
+        self._register_hook(config.LOGGER_HOOK)
+        self._register_hook(config.HOOK)
+        # self._register_hook(config.CUSTOM_HOOK)
