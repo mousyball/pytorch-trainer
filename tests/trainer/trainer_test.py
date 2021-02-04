@@ -1,25 +1,16 @@
+import copy
+
 import torch
 import pytest
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.trainer import IterBasedTrainer, EpochBasedTrainer
 from pytorch_trainer.trainer.hooks import (
     OptimizerHook, SchedulerHook, CheckpointHook
 )
 from pytorch_trainer.trainer.base_trainer import BaseTrainer
-
-
-class config:
-    def __init__(self,
-                 optimizer_config=None,
-                 scheduler_config=None,
-                 checkpoint_config=None,
-                 log_config=None):
-        self.optimizer_config = optimizer_config
-        self.scheduler_config = scheduler_config
-        self.checkpoint_config = checkpoint_config
-        self.log_config = log_config  # 'default'
 
 
 class Model(nn.Module):
@@ -58,12 +49,19 @@ class Test_base_trainer:
 
 
 class Test_epoch_based_trainer:
+    # config
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
+    config.merge_from_list(['LOGGER_HOOK.NAME', []])
+
+    # model
     model = Model()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     trainer = EpochBasedTrainer(model,
                                 optimizer=optimizer,
                                 max_epoch=1)
-    trainer.register_callback(config(optimizer_config=dict(interval=2)))
+    trainer.register_callback(config)
     data_loader = DataLoader(torch.ones((1, 2)))
 
     def test_val(self):
@@ -81,12 +79,19 @@ class Test_epoch_based_trainer:
 
 
 class Test_iter_based_trainer:
+    # config
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
+    config.merge_from_list(['LOGGER_HOOK.NAME', []])
+
+    # model
     model = Model()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     trainer = IterBasedTrainer(model,
                                optimizer=optimizer,
                                max_iter=1)
-    trainer.register_callback(config(optimizer_config=dict(interval=2)))
+    trainer.register_callback(config)
     data_loader = DataLoader(torch.ones((1, 2)))
 
     def test_val(self):
@@ -112,16 +117,22 @@ class Test_iter_based_trainer:
 
 
 class Test_register_callback():
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
 
     @pytest.mark.parametrize('cfg', [
-        config()
+        dict(),
+        dict(interval=2),
     ])
     def test_regist_optimizer_hook(self, cfg):
-        model = Model()
-        trainer = EpochBasedTrainer(model)
+        # config
+        config = copy.deepcopy(self.config)
+        config.merge_from_list(['HOOK.NAME', ['OptimizerHook']])
+        config.HOOK.OptimizerHook.update(cfg)
 
-        cfg = config()
-        trainer.register_callback(cfg)
+        # trainer
+        trainer = EpochBasedTrainer('model')
+        trainer._register_hook(config.HOOK)
         for hook in trainer._hooks:
             if isinstance(hook, OptimizerHook):
                 assert True and len(trainer._hooks) == 1
@@ -131,53 +142,57 @@ class Test_register_callback():
         assert False
 
     @pytest.mark.parametrize('cfg', [
-        config(),
-        config(scheduler_config=dict(interval=2))
+        dict(),
+        dict(interval=2, mode='step'),
     ])
     def test_regist_scheduler_hook(self, cfg):
-        model = Model()
-        trainer = EpochBasedTrainer(model,
+        # config
+        config = copy.deepcopy(self.config)
+        config.merge_from_list(['HOOK.NAME', ['SchedulerHook']])
+        config.HOOK.SchedulerHook.update(cfg)
+
+        # trainer
+        trainer = EpochBasedTrainer('model',
                                     scheduler='not_none')
 
-        trainer.register_callback(cfg)
+        trainer._register_hook(config.HOOK)
         for hook in trainer._hooks:
             if isinstance(hook, SchedulerHook):
-                assert True and len(trainer._hooks) == 2
+                assert True and len(trainer._hooks) == 1
                 return
             else:
                 continue
         assert False
 
     @pytest.mark.parametrize('cfg', [
-        config(checkpoint_config=dict(interval=2))
+        dict(),
+        dict(interval=2),
     ])
     def test_regist_checkpoint_hook(self, cfg):
-        model = Model()
-        trainer = EpochBasedTrainer(model)
+        # config
+        config = copy.deepcopy(self.config)
+        config.merge_from_list(['HOOK.NAME', ['CheckpointHook']])
+        config.HOOK.CheckpointHook.update(cfg)
 
-        trainer.register_callback(cfg)
+        # trainer
+        trainer = EpochBasedTrainer('model')
+
+        trainer._register_hook(config.HOOK)
         for hook in trainer._hooks:
             if isinstance(hook, CheckpointHook):
-                assert True and len(trainer._hooks) == 2
+                assert True and len(trainer._hooks) == 1
                 return
             else:
                 continue
         assert False
 
-    @pytest.mark.parametrize('scheduler, expected', [
-        (None, 2),
-        ('scheduler', 3),
-    ])
-    def test_regist_all(self, scheduler, expected):
-        model = Model()
-        trainer = EpochBasedTrainer(model,
-                                    scheduler=scheduler)
+    def test_regist_all(self):
+        config = copy.deepcopy(self.config)
+        trainer = EpochBasedTrainer('model',
+                                    scheduler='not_none')
 
-        cfg = config(optimizer_config=dict(interval=1),
-                     scheduler_config=dict(mode='other', interval=1),
-                     checkpoint_config=dict(interval=3, save_optimizer=True))
-        trainer.register_callback(cfg)
+        trainer.register_callback(config)
 
-        assert len(trainer._hooks) == expected
+        assert len(trainer._hooks) == 6
 
-    # TODO: logger test
+# #     # TODO: logger test

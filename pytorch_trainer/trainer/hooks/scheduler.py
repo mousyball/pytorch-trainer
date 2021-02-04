@@ -18,19 +18,19 @@ class SchedulerHook(Hook):
         self.avg_grad_cnt = 0
 
     def after_train_epoch(self, trainer):
-        if self.mode == 'step':
+        if self.mode == 'step' or trainer.scheduler is None:
             return
 
         trainer.scheduler.step()
 
     def after_train_batch(self, trainer):
-        if self.mode == 'step':
+        if self.mode == 'step' or trainer.scheduler is None:
             return
 
         trainer.scheduler.step()
 
     def after_train_iter(self, trainer):
-        if self.mode != 'step':
+        if self.mode != 'step' or trainer.scheduler is None:
             return
 
         # step every n batch iteration
