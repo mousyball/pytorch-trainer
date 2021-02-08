@@ -80,7 +80,7 @@ class BaseTrainer():
         self._iter = 0
         self._inner_iter = 0
         self._max_iter = max_iter
-        self.loss_meters = LossMeter()
+        self.loss_meters = dict()
 
     @property
     def iter(self):
@@ -164,11 +164,16 @@ class BaseTrainer():
             log_hook = HOOKS.get(name)(**kwargs)
             self.register_hook(log_hook, priority=priority)
 
+    def _register_loss_meter(self, config):
+        for key in config.NAME:
+            self.loss_meters[key] = LossMeter()
+
     def register_callback(self,
                           config):
         """Register hooks for training.
             append hook into list self.hooks
         """
+        self._register_loss_meter(config.LOGGER_HOOK)
         self._register_hook(config.LOGGER_HOOK)
         self._register_hook(config.HOOK)
         # self._register_hook(config.CUSTOM_HOOK)

@@ -20,6 +20,7 @@ class IterBasedTrainer(BaseTrainer):
                  meta=None):
         super().__init__(model, max_iter=max_iter, optimizer=optimizer,
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
+        self.base = 'iter'
         self._max_inner_iter = 0
 
     @property

@@ -10,16 +10,27 @@ class LossLoggerHook(LoggerHook):
     LossLoggerHook only update and clear trainer loss_meters
     """
 
+    def _get_loss(self, trainer):
+        """get all current loss from trainer. Return Dictionary as
+           dict(loss1=`torch.Tensor`, loss2=`torch.Tensor`). Tensor
+           size is (1,1)
+        """
+        return trainer.outputs['multi_loss']
+
     def after_train_iter(self, trainer):
-        loss_dict = trainer.outputs['multi_loss']
-        trainer.loss_meters.update(loss_dict)
+        loss_dict = self._get_loss(trainer)
+        for loss_meter in trainer.loss_meters.values():
+            loss_meter.update(loss_dict)
 
     def before_val_epoch(self, trainer):
-        trainer.loss_meters.clear()
+        for loss_meter in trainer.loss_meters.values():
+            loss_meter.clear_meter()
 
     def before_val_batch(self, trainer):
-        trainer.loss_meters.clear()
+        for loss_meter in trainer.loss_meters.values():
+            loss_meter.clear_meter()
 
     def after_val_iter(self, trainer):
-        loss_dict = trainer.outputs['multi_loss']
-        trainer.loss_meters.update(loss_dict)
+        loss_dict = self._get_loss(trainer)
+        for loss_meter in trainer.loss_meters.values():
+            loss_meter.update(loss_dict)

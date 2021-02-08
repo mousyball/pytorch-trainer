@@ -14,6 +14,10 @@ class OptimizerHook(Hook):
         self.interval = interval
         self.avg_grad_cnt = 0
 
+    def _get_trainer_loss(self, trainer):
+        """return trainer loss summation"""
+        return trainer.outputs['loss']
+
     def before_train_epoch(self, trainer):
         trainer.optimizer.zero_grad()
 
@@ -21,8 +25,7 @@ class OptimizerHook(Hook):
         trainer.optimizer.zero_grad()
 
     def after_train_iter(self, trainer):
-        # TODO: how to call sum of multi-loss
-        loss = trainer.outputs['loss']
+        loss = self._get_trainer_loss(trainer)
 
         loss /= self.interval
         loss.backward()

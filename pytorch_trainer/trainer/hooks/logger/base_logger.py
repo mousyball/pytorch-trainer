@@ -12,19 +12,14 @@ class LoggerHook(Hook):
                  ):
         self.interval = interval
 
-    def get_mode(self, trainer):
+    def get_trainer_mode(self, trainer):
         return trainer.mode
 
+    def get_trainer_base(self, trainer):
+        return trainer.base
+
     def get_epoch(self, trainer):
-        if trainer.mode == 'Train':
-            epoch = trainer.epoch + 1
-        elif trainer.mode == 'Val':
-            # trainer.epoch += 1 has been done before val flow
-            epoch = trainer.epoch
-        else:
-            raise ValueError(f"trainer mode should be 'Train' or 'Val', "
-                             f'but got {trainer.mode}')
-        return epoch
+        return trainer.epoch + 1
 
     def get_iter(self, trainer):
         """Get the current training iteration step."""
@@ -42,8 +37,11 @@ class LoggerHook(Hook):
         return {f'param_group_{ii}': val['lr'] for ii, val in enumerate(trainer.optimizer.param_groups)}
 
     def get_loss_log(self, trainer):
-        """get train or val loss from trainer"""
-        return {key: val.avg for key, val in trainer.loss_meters.meters.items()}
+        """get train or val loss meter and clear from trainer"""
+        loss_meter = trainer.loss_meters[self.__class__.__name__]
+        loss_dict = {key: val.avg for key, val in loss_meter.meters.items()}
+        loss_meter.clear_meter()
+        return loss_dict
 
     def get_all_logs(self,
                      trainer,
