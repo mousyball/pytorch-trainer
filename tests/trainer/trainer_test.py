@@ -1,4 +1,6 @@
 import copy
+import shutil
+import tempfile
 
 import torch
 import pytest
@@ -25,10 +27,12 @@ class Model(nn.Module):
         return self.linear(x)
 
     def train_step(self, x):
-        return dict(loss=self(x))
+        return dict(loss=self(x)[0, 0])
+        # return dict(loss=self(x))
 
     def val_step(self, x):
-        return dict(loss=self(x))
+        return dict(loss=self(x)[0, 0])
+        # return dict(loss=self(x))
 
 
 class model_wrapper:
@@ -195,4 +199,99 @@ class Test_register_callback():
 
         assert len(trainer._hooks) == 6
 
-# #     # TODO: logger test
+
+class Test_text_logger:
+    # config
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
+    config.merge_from_list(['HOOK.OptimizerHook.interval', 10])
+    config.merge_from_list(
+        ['LOGGER_HOOK.NAME', ['LossLoggerHook', 'TextLoggerHook']])
+    config.merge_from_list(['LOGGER_HOOK.TextLoggerHook.interval', 3])
+
+    # data loader
+    data_loader = DataLoader(torch.arange(10).view(5, 2).type(torch.float))
+
+    # model
+    model = Model()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
+
+    # trainer
+    epoch_trainer = EpochBasedTrainer(model,
+                                      optimizer=optimizer,
+                                      max_epoch=1)
+    epoch_trainer.register_callback(copy.deepcopy(config))
+
+    # trainer
+    iter_trainer = IterBasedTrainer(model,
+                                    optimizer=optimizer,
+                                    max_iter=5)
+    iter_trainer.register_callback(copy.deepcopy(config))
+
+    @pytest.mark.parametrize('mode', [
+        'train',
+        'val'
+    ])
+    def test_epoch_base(self, mode):
+        self.epoch_trainer.fit([self.data_loader], [(mode, 1)])
+        loss_meter = self.epoch_trainer.loss_meters['TextLoggerHook']
+
+        assert round(loss_meter.meters['loss'].avg.item(), 2) == 7.6
+
+    @pytest.mark.parametrize('mode', [
+        'train',
+        'val'
+    ])
+    def test_iter_base(self, mode):
+        self.iter_trainer.fit([self.data_loader], [(mode, 5)])
+        loss_meter = self.iter_trainer.loss_meters['TextLoggerHook']
+
+        assert round(loss_meter.meters['loss'].avg.item(), 2) == 7.6
+
+
+class Test_tensorboard_logger:
+    # config
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
+    config.merge_from_list(['HOOK.OptimizerHook.interval', 100])
+    config.merge_from_list(
+        ['LOGGER_HOOK.NAME', ['LossLoggerHook', 'TensorboardLoggerHook']])
+    config.merge_from_list(['LOGGER_HOOK.TensorboardLoggerHook.interval', 2])
+
+    # data loader
+    data_loader = DataLoader(torch.arange(10).view(5, 2).type(torch.float))
+
+    # model
+    model = Model()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
+
+    work_dir = tempfile.mkdtemp()
+
+    # trainer
+    epoch_trainer = EpochBasedTrainer(model,
+                                      work_dir=work_dir,
+                                      optimizer=optimizer,
+                                      max_epoch=3)
+    epoch_trainer.register_callback(copy.deepcopy(config))
+
+    # trainer
+    iter_trainer = IterBasedTrainer(model,
+                                    work_dir=work_dir,
+                                    optimizer=optimizer,
+                                    max_iter=5)
+    iter_trainer.register_callback(copy.deepcopy(config))
+
+    def test_epoch_base(self):
+        self.epoch_trainer.fit([self.data_loader], [('train', 1)])
+        loss_meter = self.epoch_trainer.loss_meters['TensorboardLoggerHook']
+
+        assert round(loss_meter.meters['loss'].avg.item(), 2) == 4.6
+        shutil.rmtree(self.epoch_trainer.work_dir)
+
+    def test_iter_base(self):
+        self.iter_trainer.fit([self.data_loader], [('train', 2)])
+        loss_meter = self.iter_trainer.loss_meters['TensorboardLoggerHook']
+
+        assert round(loss_meter.meters['loss'].avg.item(), 2) == 8.6
+        shutil.rmtree(self.work_dir)
+        shutil.rmtree(self.iter_trainer.work_dir)
