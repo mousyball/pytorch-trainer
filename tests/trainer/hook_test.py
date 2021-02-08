@@ -17,7 +17,7 @@ from pytorch_trainer.trainer import IterBasedTrainer, EpochBasedTrainer
 
 class Test_epoch_based:
     config = get_cfg_defaults()
-    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
 
     @pytest.mark.parametrize("cfg, expected",
                              [
@@ -105,7 +105,7 @@ class Test_epoch_based:
 
 class Test_iter_based:
     config = get_cfg_defaults()
-    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
 
     @pytest.mark.parametrize("cfg, expected",
                              [

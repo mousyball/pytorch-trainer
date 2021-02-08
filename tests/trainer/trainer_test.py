@@ -51,7 +51,7 @@ class Test_base_trainer:
 class Test_epoch_based_trainer:
     # config
     config = get_cfg_defaults()
-    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
     config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
     config.merge_from_list(['LOGGER_HOOK.NAME', []])
 
@@ -81,7 +81,7 @@ class Test_epoch_based_trainer:
 class Test_iter_based_trainer:
     # config
     config = get_cfg_defaults()
-    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
     config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
     config.merge_from_list(['LOGGER_HOOK.NAME', []])
 
@@ -118,7 +118,7 @@ class Test_iter_based_trainer:
 
 class Test_register_callback():
     config = get_cfg_defaults()
-    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
 
     @pytest.mark.parametrize('cfg', [
         dict(),
