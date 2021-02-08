@@ -5,10 +5,10 @@ LOGGER_HOOK:
     - TextLoggerHook
 
   LossLoggerHook:
-    priority: LOW
+    priority: VERY_HIGH
   TensorboardLoggerHook:
-    priority: LOWEST
+    priority: HIGH
     interval: 1
   TextLoggerHook:
-    priority: LOWEST
+    priority: HIGH
     interval: 500

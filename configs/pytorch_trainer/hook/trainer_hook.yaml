@@ -6,7 +6,7 @@ HOOK:
     - CheckpointHook
 
   OptimizerHook:
-    priority: HIGH
+    priority: LOW
     interval: 1
 
   CheckpointHook:
@@ -17,6 +17,6 @@ HOOK:
     save_optimizer: True
 
   SchedulerHook:
-    priority: LOWEST
+    priority: VERY_LOW
     mode: 'default'
     interval: 1
