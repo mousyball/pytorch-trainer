@@ -1,0 +1,20 @@
+_BASE_ : ./logger/logger_hook.yaml
+
+HOOK:
+  NAME:
+    - OptimizerHook
+    - SchedulerHook
+    - CheckpointHook
+  OptimizerHook:
+    priority: LOW
+    interval: 1
+  CheckpointHook:
+    priority: NORMAL
+    interval: -1
+    out_dir:
+    save_meta: False
+    save_optimizer: True
+  SchedulerHook:
+    priority: VERY_LOW
+    mode: default
+    interval: 1

@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
+from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.trainer.iter_based_trainer import IterBasedTrainer
 
 
@@ -35,19 +36,17 @@ class Net(nn.Module):
 
         # forward
         outputs = self(inputs)
-        loss = self.criterion(outputs, labels)
+        losses = self.criterion(outputs, labels)
 
-        return dict(loss=loss,
-                    multi_loss=dict(cls_loss=loss))
+        return dict(cls_loss=losses)
 
     def val_step(self, batch_data):
         inputs, labels = batch_data
         # forward
         outputs = self(inputs)
-        loss = criterion(outputs, labels)
+        losses = criterion(outputs, labels)
 
-        return dict(loss=loss,
-                    multi_loss=dict(cls_loss=loss))
+        return dict(cls_loss=losses)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -80,17 +79,12 @@ def dataloader():
     return trainloader, testloader, classes
 
 
-class dummy_config:
-    def __init__(self):
-        self.optimizer_config = dict(interval=1)
-        self.scheduler_config = dict(mode='other',
-                                     interval=1)
-        self.checkpoint_config = dict(interval=3,
-                                      save_optimizer=True)
-        self.log_config = 'default'
-
-
 if __name__ == "__main__":
+    # load config
+    config = get_cfg_defaults()
+    config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
+    config.merge_from_list(['HOOK.CheckpointHook.interval', 3])
+
     # model
     model = Net()
 
@@ -117,7 +111,7 @@ if __name__ == "__main__":
                                max_iter=5000)
 
     # register all callback
-    trainer.register_callback(dummy_config())
+    trainer.register_callback(config)
 
     # training
     trainer.fit(data_loaders=[train_loader, val_loader],

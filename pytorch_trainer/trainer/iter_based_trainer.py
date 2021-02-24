@@ -20,11 +20,15 @@ class IterBasedTrainer(BaseTrainer):
                  meta=None):
         super().__init__(model, max_iter=max_iter, optimizer=optimizer,
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
+        self.base = 'iter'
         self._max_inner_iter = 0
 
     @property
     def max_inner_iter(self):
         return self._max_inner_iter
+
+    def make_iterator(self, data_loaders):
+        return [IterDataLoader(data_loader) for data_loader in data_loaders]
 
     def train(self, data_loader, **kwargs):
         self.mode = 'train'
@@ -36,6 +40,7 @@ class IterBasedTrainer(BaseTrainer):
             self._inner_iter = i
             self.call_hook('before_train_iter')
             self.outputs = self.model.train_step(next(data_loader), **kwargs)
+            self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
             self._iter += 1
 
@@ -55,6 +60,7 @@ class IterBasedTrainer(BaseTrainer):
             self._inner_iter = i
             self.call_hook('before_val_iter')
             self.outputs = self.model.val_step(next(data_loader))
+            self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_batch')
@@ -77,18 +83,18 @@ class IterBasedTrainer(BaseTrainer):
         self.logger.info('workflow: {0}, max: {1:4d} iterations'.format(
             workflow, self.max_iter))
 
+        data_loaders = self.make_iterator(data_loaders)
+
         self.call_hook('before_run')
         while self.iter < self.max_iter:
             for i, flow in enumerate(workflow):
                 mode, iterations = flow
-                # check if is max iteration
-                if mode == 'train' and self.iter >= self.max_iter:
-                    break
+
                 # assign maximum inner iteration
                 if iterations == -1:
-                    self._max_inner_iter = len(data_loaders)
+                    self._max_inner_iter = len(data_loaders[i])
                 else:
                     self._max_inner_iter = iterations
 
                 iter_trainer = getattr(self, mode)
-                iter_trainer(IterDataLoader(data_loaders[i]))
+                iter_trainer(data_loaders[i])

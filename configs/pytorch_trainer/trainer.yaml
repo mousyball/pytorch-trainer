@@ -1,0 +1,1 @@
+_BASE_: ./hook/trainer_hook.yaml

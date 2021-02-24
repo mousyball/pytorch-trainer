@@ -25,6 +25,7 @@ class EpochBasedTrainer(BaseTrainer):
                  meta=None):
         super().__init__(model, max_epoch=max_epoch, optimizer=optimizer,
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
+        self.base = 'epoch'
 
     def train(self, data_loader, **kwargs):
         self.model.train()
@@ -36,6 +37,7 @@ class EpochBasedTrainer(BaseTrainer):
             self._inner_iter = i
             self.call_hook('before_train_iter')
             self.outputs = self.model.train_step(data_batch, **kwargs)
+            self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
 
         self.call_hook('after_train_epoch')
@@ -53,6 +55,7 @@ class EpochBasedTrainer(BaseTrainer):
             self._inner_iter = i
             self.call_hook('before_val_iter')
             self.outputs = self.model.val_step(data_batch, **kwargs)
+            self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_epoch')

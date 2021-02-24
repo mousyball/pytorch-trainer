@@ -39,13 +39,8 @@ class TensorboardLoggerHook(LoggerHook):
             return
 
         step = trainer.epoch + 1
-        loss_dict = self.get_loss_log(trainer)
-        for key, val in loss_dict.items():
-            self.writer.add_scalar('Train/{0}_epoch'.format(key), val, step)
-
-        lr_dict = self.get_lr_log(trainer)
-        for key, val in lr_dict.items():
-            self.writer.add_scalar('LR/{0}_epoch'.format(key), val, step)
+        self._add_loss_scalar(trainer, step)
+        self._add_lr_scalar(trainer, step)
 
     def after_train_batch(self, trainer):
         """log loss and lr group every n training batch iteration"""
@@ -53,28 +48,33 @@ class TensorboardLoggerHook(LoggerHook):
             return
 
         step = trainer.iter + 1
-        loss_dict = self.get_loss_log(trainer)
-        for key, val in loss_dict.items():
-            self.writer.add_scalar(
-                'Train/{0}_iter'.format(key), val, step)
-
-        lr_dict = self.get_lr_log(trainer)
-        for key, val in lr_dict.items():
-            self.writer.add_scalar('LR/{0}_iter'.format(key), val, step)
+        self._add_loss_scalar(trainer, step)
+        self._add_lr_scalar(trainer, step)
 
     def after_val_epoch(self, trainer):
         """log loss every evaluation epoch"""
-
-        loss_dict = self.get_loss_log(trainer)
-        for key, val in loss_dict.items():
-            self.writer.add_scalar(
-                'Val/{0}_epoch'.format(key), val, trainer.epoch + 1)
+        step = trainer.epoch + 1
+        self._add_loss_scalar(trainer, step)
 
     def after_val_batch(self, trainer):
-        loss_dict = self.get_loss_log(trainer)
-        for key, val in loss_dict.items():
-            self.writer.add_scalar(
-                'Val/{0}_iter'.format(key), val, trainer.iter + 1)
+        """log loss every evaluation iteration"""
+        step = trainer.iter + 1
+        self._add_loss_scalar(trainer, step)
 
     def after_run(self, trainer):
         self.writer.close()
+
+    def _add_loss_scalar(self, trainer, step):
+        trainer_mode = self.get_trainer_mode(trainer).capitalize()
+        trainer_base = self.get_trainer_base(trainer)
+        loss_dict = self.get_loss_log(trainer)
+        for key, val in loss_dict.items():
+            self.writer.add_scalar(
+                '{0}/{1}_{2}'.format(trainer_mode, key, trainer_base), val, step)
+
+    def _add_lr_scalar(self, trainer, step):
+        trainer_base = self.get_trainer_base(trainer)
+        lr_dict = self.get_lr_log(trainer)
+        for key, val in lr_dict.items():
+            self.writer.add_scalar(
+                'LR/{0}_{1}'.format(key, trainer_base), val, step)

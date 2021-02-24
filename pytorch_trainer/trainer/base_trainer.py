@@ -5,6 +5,7 @@ https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
 import os
 import os.path as osp
+from datetime import datetime
 
 from .utils import get_logger, sync_counter
 from ..utils import Registry
@@ -50,18 +51,21 @@ class BaseTrainer():
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
-        if logger is None:
-            self.logger = get_logger()
 
         # create work_dir
         if isinstance(work_dir, str):
+            date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            work_dir = osp.join(work_dir, '')[:-1] + f'_{date}'
             self.work_dir = osp.abspath(work_dir)
             if not osp.isdir(work_dir):
                 os.makedirs(work_dir)
         elif work_dir is None:
             self.work_dir = None
         else:
-            raise TypeError('Argument "work_dir" must be a str or None')
+            raise TypeError('Argument "work_dir" must be a string.')
+
+        if logger is None:
+            self.logger = get_logger(self.work_dir)
 
         # get model name from the model class
         if hasattr(self.model, 'module'):
@@ -76,7 +80,7 @@ class BaseTrainer():
         self._iter = 0
         self._inner_iter = 0
         self._max_iter = max_iter
-        self.loss_meters = LossMeter()
+        self.loss_meters = dict()
 
     @property
     def iter(self):
@@ -97,6 +101,22 @@ class BaseTrainer():
     @property
     def max_epoch(self):
         return self._max_epoch
+
+    def _loss_parser(self, output):
+        """Sum up the losses of output.
+
+        Args:
+            output (dict): example dict(cls_loss=float, regr_loss=float)
+        Returns:
+            dict: dictionary include loss(total loss) and multi_loss(rest of losses)
+        """
+        total_loss = 0
+        for value in output.values():
+            total_loss += value
+        output['loss'] = total_loss
+
+        return dict(loss=total_loss,
+                    multi_loss=output)
 
     def call_hook(self, fn_name):
         """Call all hooks by name.
@@ -125,8 +145,6 @@ class BaseTrainer():
 
         """
         # assert isinstance(hook(), Hook)
-        if hasattr(hook, 'priority'):
-            raise ValueError('"priority" is a reserved attribute for hooks')
 
         hook.priority = get_priority(priority)
         # insert the hook to a sorted list
@@ -136,48 +154,26 @@ class BaseTrainer():
                 return
         self._hooks.insert(0, hook)
 
-    def register_optimizer_hook(self, optimizer_config=None):
-        """mandatory hook"""
-        if optimizer_config is None:
-            optimizer_config = dict()
-        # TODO: builder and assign configure
-        optimizer_hook = HOOKS.get('OptimizerHook')(**optimizer_config)
-        self.register_hook(optimizer_hook, priority='High')
+    def _register_hook(self, config):
+        for name in config.get('NAME'):
+            # get arguments
+            kwargs = config.get(name)
+            priority = kwargs.pop('priority')
 
-    def register_scheduler(self, scheduler_config=None):
-        """optional hook"""
-        if self.scheduler is None:
-            return
-        elif self.scheduler is not None and scheduler_config is None:
-            scheduler_config = dict()
-        # TODO: builder and assign configure
-        scheduler_hook = HOOKS.get('SchedulerHook')(**scheduler_config)
-        self.register_hook(scheduler_hook, priority='LOWEST')
+            # get function
+            log_hook = HOOKS.get(name)(**kwargs)
+            self.register_hook(log_hook, priority=priority)
 
-    def register_checkpoint_hook(self, checkpoint_config=None):
-        """optional hook"""
-        if checkpoint_config is None:
-            return
-        # TODO: builder  and assign configure
-        checkpoint_hook = HOOKS.get('CheckpointHook')(**checkpoint_config)
-        self.register_hook(checkpoint_hook)
-
-    def register_logger_hooks(self, log_config=None):
-        """optional hook"""
-        if log_config is None:
-            return
-        # # TODO: builder  and assign configure
-        # for config in log_config:
-        for hook_name in ['LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook']:
-            log_hook = HOOKS.get(hook_name)()
-            self.register_hook(log_hook, priority='VERY_LOW')
+    def _register_loss_meter(self, config):
+        for key in config.NAME:
+            self.loss_meters[key] = LossMeter()
 
     def register_callback(self,
                           config):
         """Register hooks for training.
             append hook into list self.hooks
         """
-        self.register_optimizer_hook(config.optimizer_config)
-        self.register_scheduler(config.scheduler_config)
-        self.register_checkpoint_hook(config.checkpoint_config)
-        self.register_logger_hooks(config.log_config)
+        self._register_loss_meter(config.LOGGER_HOOK)
+        self._register_hook(config.LOGGER_HOOK)
+        self._register_hook(config.HOOK)
+        # self._register_hook(config.CUSTOM_HOOK)
