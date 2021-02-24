@@ -15,6 +15,22 @@ from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.trainer import IterBasedTrainer, EpochBasedTrainer
 
 
+class Model(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(2, 1)
+
+    def forward(self, x):
+        return self.linear(x)
+
+    def train_step(self, x):
+        return dict(loss=self(x))
+
+    def val_step(self, x):
+        return dict(loss=self(x))
+
+
 class Test_epoch_based:
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
@@ -194,19 +210,3 @@ class Test_iter_based:
         shutil.rmtree(trainer.work_dir)
 
     # TODO: logger hook test
-
-
-class Model(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.linear = nn.Linear(2, 1)
-
-    def forward(self, x):
-        return self.linear(x)
-
-    def train_step(self, x):
-        return dict(loss=self(x))
-
-    def val_step(self, x):
-        return dict(loss=self(x))

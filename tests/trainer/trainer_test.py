@@ -28,15 +28,14 @@ class Model(nn.Module):
 
     def train_step(self, x):
         return dict(loss=self(x)[0, 0])
-        # return dict(loss=self(x))
 
     def val_step(self, x):
         return dict(loss=self(x)[0, 0])
-        # return dict(loss=self(x))
 
 
 class model_wrapper:
     def __init__(self):
+        # Mocking the situation of parallel module.
         self.module = Model()
 
 
@@ -129,6 +128,7 @@ class Test_register_callback():
         dict(interval=2),
     ])
     def test_regist_optimizer_hook(self, cfg):
+        '''Test if optimizer hook has been correctly registered'''
         # config
         config = copy.deepcopy(self.config)
         config.merge_from_list(['HOOK.NAME', ['OptimizerHook']])
@@ -139,11 +139,11 @@ class Test_register_callback():
         trainer._register_hook(config.HOOK)
         for hook in trainer._hooks:
             if isinstance(hook, OptimizerHook):
-                assert True and len(trainer._hooks) == 1
+                assert len(trainer._hooks) == 1
                 return
-            else:
-                continue
-        assert False
+        else:
+            # hook fail to register
+            assert False
 
     @pytest.mark.parametrize('cfg', [
         dict(),
@@ -162,11 +162,11 @@ class Test_register_callback():
         trainer._register_hook(config.HOOK)
         for hook in trainer._hooks:
             if isinstance(hook, SchedulerHook):
-                assert True and len(trainer._hooks) == 1
+                assert len(trainer._hooks) == 1
                 return
-            else:
-                continue
-        assert False
+        else:
+            # hook fail to register
+            assert False
 
     @pytest.mark.parametrize('cfg', [
         dict(),
@@ -186,9 +186,9 @@ class Test_register_callback():
             if isinstance(hook, CheckpointHook):
                 assert True and len(trainer._hooks) == 1
                 return
-            else:
-                continue
-        assert False
+        else:
+            # hook fail to register
+            assert False
 
     def test_regist_all(self):
         config = copy.deepcopy(self.config)
