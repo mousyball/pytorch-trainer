@@ -3,7 +3,6 @@ LOGGER_HOOK:
     - LossLoggerHook
     - TensorboardLoggerHook
     - TextLoggerHook
-
   LossLoggerHook:
     priority: VERY_HIGH
   TensorboardLoggerHook:

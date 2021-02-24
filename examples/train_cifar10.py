@@ -36,17 +36,17 @@ class Net(nn.Module):
 
         # forward
         outputs = self(inputs)
-        losses = self.criterion(outputs, labels)
+        loss = self.criterion(outputs, labels)
 
-        return dict(cls_loss=losses)
+        return dict(cls_loss=loss)
 
     def val_step(self, batch_data):
         inputs, labels = batch_data
         # forward
         outputs = self(inputs)
-        losses = criterion(outputs, labels)
+        loss = criterion(outputs, labels)
 
-        return dict(cls_loss=losses)
+        return dict(cls_loss=loss)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))

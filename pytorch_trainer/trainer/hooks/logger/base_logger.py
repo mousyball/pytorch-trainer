@@ -8,8 +8,7 @@ class LoggerHook(Hook):
     """
 
     def __init__(self,
-                 interval=1,
-                 ):
+                 interval=1):
         self.interval = interval
 
     def get_trainer_mode(self, trainer):

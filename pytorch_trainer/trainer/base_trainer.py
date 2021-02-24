@@ -62,7 +62,7 @@ class BaseTrainer():
         elif work_dir is None:
             self.work_dir = None
         else:
-            raise TypeError('Argument "work_dir" must be a string')
+            raise TypeError('Argument "work_dir" must be a string.')
 
         if logger is None:
             self.logger = get_logger(self.work_dir)
@@ -103,7 +103,7 @@ class BaseTrainer():
         return self._max_epoch
 
     def _loss_parser(self, output):
-        """sum losses in output
+        """Sum up the losses of output.
 
         Args:
             output (dict): example dict(cls_loss=float, regr_loss=float)

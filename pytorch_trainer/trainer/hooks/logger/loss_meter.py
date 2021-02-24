@@ -5,9 +5,9 @@ from .base_logger import LoggerHook
 @HOOKS.register()
 class LossLoggerHook(LoggerHook):
     """
-    loss_meters belongs to trainer rather than LossLoggerHook()'.
-    To make loss_meters independent between Hook
-    LossLoggerHook only update and clear trainer loss_meters
+    loss_meters belongs to trainer rather than 'LossLoggerHook()'.
+    Trainer make loss_meters independent among hooks.
+    'LossLoggerHook()' only update and clear trainer loss_meters.
     """
 
     def _get_loss(self, trainer):

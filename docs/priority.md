@@ -2,6 +2,7 @@
 
 ## priority table
 
+> TODO: Rewrite the description to make it clear to understand.
 * The priority table is designed for controlling hook execution order
     * HIGHEST means execution first
 * HIGHEST, VERY_HIGH, HIGH: hooks which requests data from the trainer before data been overwrite
