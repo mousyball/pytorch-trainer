@@ -1,6 +1,7 @@
 torch>=1.7.1
-fvcore=0.1.2.post20210128
+fvcore==0.1.2.post20210128
 tensorboard
+albumentations
 autopep8
 pre-commit
 pytest
