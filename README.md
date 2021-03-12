@@ -10,6 +10,12 @@ pip install -r requirements/runtime.txt
 pip install -r requirements/dev.txt
 ```
 
+* Pycocotool
+
+```bash
+pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
+```
+
 ## Pre-commit Hook
 
 > for DEV

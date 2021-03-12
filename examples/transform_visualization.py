@@ -20,7 +20,7 @@ def argparser():
 
     parser.add_argument('-cfg',
                         '--config_path',
-                        default='./configs/transforms/example.yaml',
+                        default='./configs/transforms/example_is.yaml',
                         type=str,
                         metavar='PATH',
                         help=r'Specify config path.')
@@ -95,5 +95,60 @@ def main():
             break
 
 
+def demo_is():
+    from datasets.helpers import pascal
+    IMAGE_COUNT = 0
+
+    parser = argparser()
+    # Get dataset
+    ROOT = parser.dataset_path
+    voc_val = pascal.VOCSegmentation(
+        root=ROOT,
+        split="val",
+        transform=None
+    )
+
+    # Setup transforms
+    CFG_PATH = parser.config_path
+    cfg = parse_yaml_config(CFG_PATH)
+    tv_cfg = cfg.TRANSFORMS.transform_visualization
+    train_transform = []
+    for feature in tv_cfg.features:
+        feat_cfg = getattr(tv_cfg, feature)
+        train_transform.append(build_transform(feat_cfg))
+
+    # Loop dataset and visualize images
+    for idx, obj in enumerate(voc_val):
+        if idx != IMAGE_COUNT:
+            continue
+
+        # Get image
+        image = obj['image']
+        # Get mask
+        mask = obj['gt']
+
+        # Apply transforms
+        for tr in train_transform:
+            print(f"[INFO] Visualizing '{tr.__class__.__name__}.'")
+            sample_tr = tr({'image': image, 'mask': mask})
+            image = sample_tr['image']
+            mask = sample_tr['mask']
+
+        # [Visualization]
+        # Show transforms
+        for tr in train_transform:
+            if tr.visualized_images is None:
+                continue
+
+            for k, v in tr.visualized_images.items():
+                print(k, v.shape)
+                Image.fromarray(v.astype(np.uint8)).show(title=k)
+            tr.clear_visualized_cache()
+
+        if idx == IMAGE_COUNT:
+            break
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    demo_is()
