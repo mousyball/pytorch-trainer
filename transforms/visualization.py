@@ -1,6 +1,14 @@
+from enum import Enum
 from collections import OrderedDict
 
 import cv2
+
+from .helpers import dextr_helper
+
+
+class MaskVisual(Enum):
+    STRAIGHT_MIX = 0
+    DEXTR = 1
 
 
 class ITransformVisualization:
@@ -34,6 +42,7 @@ class BaseTransformVisualization(ITransformVisualization):
     def __init__(self) -> None:
         super().__init__()
         self._visualized_images = OrderedDict()
+        self._mask_display_method = MaskVisual.DEXTR
 
     @property
     def visualized_images(self):
@@ -56,7 +65,21 @@ class BaseTransformVisualization(ITransformVisualization):
         self._visualized_images['bboxes'] = draw_image
 
     def apply_to_mask(self, sample, transformed):
-        pass
+        draw_image = transformed['image'].copy()
+        mask = transformed['mask'].copy()
+
+        if self._mask_display_method == MaskVisual.STRAIGHT_MIX:
+            draw_image = draw_image[:, :, 0] * 0.5 + (mask * 255) * 0.5
+        elif self._mask_display_method == MaskVisual.DEXTR:
+            # Require floating image
+            draw_image = dextr_helper.overlay_mask(
+                im=draw_image / 255,
+                ma=mask / 255,
+                colors=None,
+                alpha=0.5
+            ) * 255
+
+        self._visualized_images['mask'] = draw_image
 
     def apply_to_masks(self, sample, transformed):
         pass
