@@ -1,0 +1,21 @@
+TRANSFORMS:
+  OUTPUT_DIR: './output/'
+  transform_visualization:
+    features:
+      - album_random_affine
+      - custom_points
+    album_random_affine:
+      name: AlbumRandomAffine
+      params:
+        degree: [-45, 45]
+        prob: 0.5
+        bbox_format: pascal_voc
+      input_key: [image, bboxes]
+      output_key: [image, bboxes]
+      visualize: True
+    custom_points:
+      name: CustomPoints
+      params: null
+      input_key: [image]
+      output_key: [points]
+      visualize: True
