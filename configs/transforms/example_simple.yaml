@@ -16,6 +16,6 @@ TRANSFORMS:
     custom_points:
       name: CustomPoints
       params: null
-      input_key: [image]
+      input_key: [image, bboxes]
       output_key: [points]
       visualize: True

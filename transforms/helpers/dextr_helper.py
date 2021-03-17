@@ -1,3 +1,9 @@
+"""
+File is modified from https://github.com/scaelles/DEXTR-PyTorch
+License File Available at:
+https://github.com/scaelles/DEXTR-PyTorch/blob/master/LICENSE
+"""
+
 import os
 import random
 from itertools import groupby

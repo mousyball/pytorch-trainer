@@ -9,7 +9,7 @@ from pytorch_trainer.utils.config import parse_yaml_config
 
 
 def argparser():
-    parser = argparse.ArgumentParser(description='[Runner]')
+    parser = argparse.ArgumentParser(description='[Transform Visualization]')
 
     parser.add_argument('-dataset',
                         '--dataset_path',
@@ -20,7 +20,7 @@ def argparser():
 
     parser.add_argument('-cfg',
                         '--config_path',
-                        default='./configs/transforms/example_is.yaml',
+                        default='./configs/transforms/example_dextr.yaml',
                         type=str,
                         metavar='PATH',
                         help=r'Specify config path.')
@@ -39,7 +39,7 @@ def get_pascal_category_table():
     return table
 
 
-def main():
+def demo_simple(cfg_path=None):
     IMAGE_COUNT = 11
     parser = argparser()
 
@@ -49,7 +49,7 @@ def main():
         ROOT, year='2012', image_set='val', transform=None, target_transform=None)
 
     # Setup transforms
-    CFG_PATH = parser.config_path
+    CFG_PATH = parser.config_path if cfg_path is None else cfg_path
     cfg = parse_yaml_config(CFG_PATH)
     tv_cfg = cfg.TRANSFORMS.transform_visualization
     train_transform = []
@@ -78,11 +78,10 @@ def main():
             bboxes.append(_box)
 
         # Apply transforms
+        sample_tr = {'image': image, 'bboxes': bboxes}
         for tr in train_transform:
             print(f"[INFO] Visualizing '{tr.__class__.__name__}.'")
-            sample_tr = tr({'image': image, 'bboxes': bboxes})
-            image = sample_tr['image']
-            bboxes = sample_tr['bboxes']
+            sample_tr = tr(sample_tr)
 
         # [Visualization]
         # Show transforms
@@ -95,13 +94,13 @@ def main():
             break
 
 
-def demo_is():
+def demo_dextr(cfg_path=None):
     from datasets.helpers import pascal
     IMAGE_COUNT = 0
 
     parser = argparser()
     # Get dataset
-    ROOT = parser.dataset_path
+    ROOT = parser.dataset_path if cfg_path is None else cfg_path
     voc_val = pascal.VOCSegmentation(
         root=ROOT,
         split="val",
@@ -128,15 +127,19 @@ def demo_is():
         mask = obj['gt']
 
         # Apply transforms
+        sample_tr = {'image': image, 'mask': mask}
         for tr in train_transform:
             print(f"[INFO] Visualizing '{tr.__class__.__name__}.'")
-            sample_tr = tr({'image': image, 'mask': mask})
-            image = sample_tr['image']
-            mask = sample_tr['mask']
+            sample_tr = tr(sample_tr)
+        print("Type of output after transform pipeline.",
+              "'concat': ", type(sample_tr['concat']),
+              ", 'mask': ", type(sample_tr['mask']))
 
         # [Visualization]
         # Show transforms
         for tr in train_transform:
+            print("================")
+            print(tr)
             if tr.visualized_images is None:
                 continue
 
@@ -150,5 +153,9 @@ def demo_is():
 
 
 if __name__ == '__main__':
-    # main()
-    demo_is()
+    EXAMPLE = 1
+
+    if EXAMPLE == 0:
+        demo_simple(cfg_path='./configs/transforms/example_simple.yaml')
+    elif EXAMPLE == 1:
+        demo_dextr()

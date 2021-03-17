@@ -7,6 +7,10 @@ TRANSFORMS:
       - custom_crop_from_mask
       - album_resize
       - custom_extreme_points
+      - custom_to_image
+      - custom_concat_inputs
+      - custom_collect
+      - custom_to_tensor
     album_random_affine:
       name: AlbumRandomAffine
       params:
@@ -51,4 +55,29 @@ TRANSFORMS:
       input_key: [mask]
       output_key: [extreme_points]
       visualize: True
+    custom_to_image:
+      name: CustomToImage
+      params:
+        custom_max: 255
+      input_key: [extreme_points]
+      output_key: [extreme_points]
+      visualize: False
+    custom_concat_inputs:
+      name: CustomConcatInputs
+      params: null
+      input_key: [image, extreme_points]
+      output_key: [concat]
+      visualize: False
+    custom_collect:
+      name: CustomCollect
+      params: null
+      input_key: [concat, mask]
+      visualize: True
+    custom_to_tensor:
+      name: CustomToTensor
+      params:
+        except_key: [meta]
+      input_key: null
+      output_key: null
+      visualize: False
 
