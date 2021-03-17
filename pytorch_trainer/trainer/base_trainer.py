@@ -1,5 +1,5 @@
 """
-File modify from https://github.com/open-mmlab/mmcv
+File is modified from https://github.com/open-mmlab/mmcv
 License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """

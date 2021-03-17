@@ -1,4 +1,4 @@
-class AverageMeter():
+class AverageMeter:
     """A meter is for recording loss status.
     """
 
@@ -22,7 +22,7 @@ class AverageMeter():
         return self._avg
 
 
-class LossMeter():
+class LossMeter:
     """A meter contains serveral meters for recording loss status.
     """
 
