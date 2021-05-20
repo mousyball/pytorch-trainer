@@ -8,6 +8,7 @@ import time
 import torch
 
 from .utils import sync_counter, get_host_info
+from .profiling import profiling
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -60,6 +61,7 @@ class EpochBasedTrainer(BaseTrainer):
 
         self.call_hook('after_val_epoch')
 
+    @profiling
     def fit(self, data_loaders, workflow):
         """Start training.
 

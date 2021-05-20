@@ -3,6 +3,7 @@ import time
 import torch
 
 from .utils import IterDataLoader, sync_counter, get_host_info
+from .profiling import profiling
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -65,6 +66,7 @@ class IterBasedTrainer(BaseTrainer):
 
         self.call_hook('after_val_batch')
 
+    @profiling
     def fit(self, data_loaders, workflow):
         """Start training
 
