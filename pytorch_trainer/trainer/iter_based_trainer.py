@@ -31,7 +31,7 @@ class IterBasedTrainer(BaseTrainer):
     def make_iterator(self, data_loaders):
         return [IterDataLoader(data_loader) for data_loader in data_loaders]
 
-    def train(self, data_loader, **kwargs):
+    def train(self, data_loader, device, **kwargs):
         self.mode = 'train'
         self.model.train()
         self.call_hook('before_train_batch')
@@ -40,7 +40,9 @@ class IterBasedTrainer(BaseTrainer):
         for i in range(self.max_inner_iter):
             self._inner_iter = i
             self.call_hook('before_train_iter')
-            self.outputs = self.model.train_step(next(data_loader), **kwargs)
+            self.outputs = self.model.train_step(next(data_loader),
+                                                 device,
+                                                 **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
             self._iter += 1
@@ -52,7 +54,7 @@ class IterBasedTrainer(BaseTrainer):
 
     @torch.no_grad()
     @sync_counter
-    def val(self, data_loader, **kwargs):
+    def val(self, data_loader, device, **kwargs):
         self.mode = 'val'
         self.model.eval()
         self.call_hook('before_val_batch')
@@ -60,7 +62,9 @@ class IterBasedTrainer(BaseTrainer):
         for i in range(self.max_inner_iter):
             self._inner_iter = i
             self.call_hook('before_val_iter')
-            self.outputs = self.model.val_step(next(data_loader))
+            self.outputs = self.model.val_step(next(data_loader),
+                                               device,
+                                               **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
@@ -86,6 +90,7 @@ class IterBasedTrainer(BaseTrainer):
             workflow, self.max_iter))
 
         data_loaders = self.make_iterator(data_loaders)
+        device = self.device
 
         self.call_hook('before_run')
         while self.iter < self.max_iter:
@@ -99,4 +104,4 @@ class IterBasedTrainer(BaseTrainer):
                     self._max_inner_iter = iterations
 
                 iter_trainer = getattr(self, mode)
-                iter_trainer(data_loaders[i])
+                iter_trainer(data_loaders[i], device)

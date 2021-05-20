@@ -7,10 +7,13 @@ import os
 import os.path as osp
 from datetime import datetime
 
+import torch
+
 from .utils import get_logger, sync_counter
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
+from .profiling import bcolors
 from .hooks.base_hook import HOOKS
 
 TRAINER = Registry('trainer')
@@ -47,6 +50,7 @@ class BaseTrainer():
 
         # TODO: argument checker
         # TODO: discuss meta format for logging
+        # TODO: Handle optimizer, scheduler, device by config
         self.meta = meta
         self.model = model
         self.optimizer = optimizer
@@ -60,6 +64,7 @@ class BaseTrainer():
             if not osp.isdir(work_dir):
                 os.makedirs(work_dir)
         elif work_dir is None:
+            # TODO: Raise ValueError? Can be None?
             self.work_dir = None
         else:
             raise TypeError('Argument "work_dir" must be a string.')
@@ -72,6 +77,9 @@ class BaseTrainer():
             self._model_name = self.model.module.__class__.__name__
         else:
             self._model_name = self.model.__class__.__name__
+
+        self.device = self.get_device(gpu_id=0)  # TODO: will control by cfg
+        model.to(self.device)
 
         self.mode = None
         self._hooks = []
@@ -113,6 +121,7 @@ class BaseTrainer():
         total_loss = 0
         for value in output.values():
             total_loss += value
+        # TODO: why should it assign back to output?
         output['loss'] = total_loss
 
         return dict(loss=total_loss,
@@ -177,3 +186,13 @@ class BaseTrainer():
         self._register_hook(config.LOGGER_HOOK)
         self._register_hook(config.HOOK)
         # self._register_hook(config.CUSTOM_HOOK)
+
+    def get_device(self, gpu_id):
+        device = torch.device("cuda:"+str(gpu_id)
+                              if torch.cuda.is_available()
+                              else "cpu")
+
+        self.logger.info(
+            f"Using device: {bcolors.OKGREEN}{device}{bcolors.ENDC}")
+
+        return device
