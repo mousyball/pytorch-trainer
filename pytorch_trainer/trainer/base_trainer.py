@@ -121,8 +121,6 @@ class BaseTrainer():
         total_loss = 0
         for value in output.values():
             total_loss += value
-        # TODO: why should it assign back to output?
-        output['loss'] = total_loss
 
         return dict(loss=total_loss,
                     multi_loss=output)
