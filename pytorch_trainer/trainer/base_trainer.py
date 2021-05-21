@@ -4,9 +4,11 @@ License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
 import os
+import random
 import os.path as osp
 from datetime import datetime
 
+import numpy as np
 import torch
 
 from .utils import get_logger, sync_counter
@@ -78,6 +80,8 @@ class BaseTrainer():
         else:
             self._model_name = self.model.__class__.__name__
 
+        # if cfg.SOLVER.DETERMINISTIC:
+        self.seed_torch(seed=1234)  # TODO: will control by cfg
         self.device = self.get_device(gpu_id=0)  # TODO: will control by cfg
         model.to(self.device)
 
@@ -109,6 +113,16 @@ class BaseTrainer():
     @property
     def max_epoch(self):
         return self._max_epoch
+
+    def seed_torch(self, seed=0):
+        random.seed(seed)
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.deterministic = True
+
+        self.logger.info(f"[Warning] Using GLOBAL SEED!!! (seed_num={seed})")
 
     def _loss_parser(self, output):
         """Sum up the losses of output.
