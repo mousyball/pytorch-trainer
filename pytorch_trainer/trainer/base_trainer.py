@@ -187,6 +187,10 @@ class BaseTrainer():
         self._register_hook(config.HOOK)
         # self._register_hook(config.CUSTOM_HOOK)
 
+    def data_to_device(self, data):
+        inputs, labels = data
+        return inputs.to(self.device), labels.to(self.device)
+
     def get_device(self, gpu_id):
         device = torch.device("cuda:"+str(gpu_id)
                               if torch.cuda.is_available()

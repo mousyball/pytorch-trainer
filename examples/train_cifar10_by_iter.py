@@ -31,9 +31,8 @@ class Net(nn.Module):
             if 'fc' in name:
                 yield param
 
-    def train_step(self, batch_data, device):
+    def train_step(self, batch_data):
         inputs, labels = batch_data
-        inputs, labels = inputs.to(device), labels.to(device)
 
         # forward
         outputs = self(inputs)
@@ -41,9 +40,8 @@ class Net(nn.Module):
 
         return dict(cls_loss=losses)
 
-    def val_step(self, batch_data, device):
+    def val_step(self, batch_data):
         inputs, labels = batch_data
-        inputs, labels = inputs.to(device), labels.to(device)
 
         # forward
         outputs = self(inputs)

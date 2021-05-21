@@ -28,7 +28,7 @@ class EpochBasedTrainer(BaseTrainer):
                          scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
         self.base = 'epoch'
 
-    def train(self, data_loader, device, **kwargs):
+    def train(self, data_loader, **kwargs):
         self.model.train()
         self.mode = 'train'
         self.data_loader = data_loader
@@ -37,7 +37,8 @@ class EpochBasedTrainer(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_train_iter')
-            self.outputs = self.model.train_step(data_batch, device, **kwargs)
+            data_batch = self.data_to_device(data_batch)
+            self.outputs = self.model.train_step(data_batch, **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
 
@@ -46,7 +47,7 @@ class EpochBasedTrainer(BaseTrainer):
 
     @torch.no_grad()
     @sync_counter
-    def val(self, data_loader, device, **kwargs):
+    def val(self, data_loader, **kwargs):
         self.model.eval()
         self.mode = 'val'
         self.data_loader = data_loader
@@ -55,7 +56,8 @@ class EpochBasedTrainer(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_val_iter')
-            self.outputs = self.model.val_step(data_batch, device, **kwargs)
+            data_batch = self.data_to_device(data_batch)
+            self.outputs = self.model.val_step(data_batch, **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
@@ -79,8 +81,6 @@ class EpochBasedTrainer(BaseTrainer):
         self.logger.info('workflow: {0}, max: {1:4d} epochs'.format(
             workflow, self.max_epoch))
 
-        device = self.device
-
         self.call_hook('before_run')
         while self.epoch < self.max_epoch:
             for i, flow in enumerate(workflow):
@@ -90,7 +90,7 @@ class EpochBasedTrainer(BaseTrainer):
                 for _ in range(epochs):
                     if mode == 'train' and self.epoch >= self.max_epoch:
                         break
-                    epoch_trainer(data_loaders[i], device)
+                    epoch_trainer(data_loaders[i])
 
         time.sleep(1)  # wait for some hooks like loggers to finish
         self.call_hook('after_run')
