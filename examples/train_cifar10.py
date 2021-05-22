@@ -36,18 +36,18 @@ class Net(nn.Module):
 
         # forward
         outputs = self(inputs)
-        loss = self.criterion(outputs, labels)
+        losses = self.criterion(outputs, labels)
 
-        return dict(cls_loss=loss)
+        return dict(cls_loss=losses, box_loss=losses+10.0)
 
     def val_step(self, batch_data):
         inputs, labels = batch_data
 
         # forward
         outputs = self(inputs)
-        loss = criterion(outputs, labels)
+        losses = criterion(outputs, labels)
 
-        return dict(cls_loss=loss)
+        return dict(cls_loss=losses, box_loss=losses+10.0)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -64,11 +64,7 @@ def dataloader():
         [transforms.ToTensor(),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    trainset = torchvision.datasets.CIFAR10(root='./dev/data', train=True,
-                                            download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                              shuffle=True, num_workers=2)
-
+    # CIFAR10 train set 25K, val 5K. Use val set for demo purpose
     testset = torchvision.datasets.CIFAR10(root='./dev/data', train=False,
                                            download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=4,
@@ -77,7 +73,7 @@ def dataloader():
     classes = ('plane', 'car', 'bird', 'cat',
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-    return trainloader, testloader, classes
+    return testloader, classes
 
 
 if __name__ == "__main__":
@@ -90,9 +86,9 @@ if __name__ == "__main__":
     model = Net()
 
     # dataloader
-    train_loader, val_loader, classes = dataloader()
+    val_loader, classes = dataloader()
     train_loader = val_loader
-
+    print(len(train_loader))
     # loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD([{'params': model.get_1x_lr()},
@@ -109,11 +105,11 @@ if __name__ == "__main__":
                                 work_dir='./dev/trainer/',
                                 logger=None,
                                 meta={'commit': 'as65sadf45'},
-                                max_epoch=20)
+                                max_epoch=3)
 
     # register all callback
     trainer.register_callback(config)
 
-    # training
+    # training: demo will train 3 epoch(15K iteration), run validation 3 time and save 1 weight
     trainer.fit(data_loaders=[train_loader, val_loader],
-                workflow=[('train', 2), ('val', 1)])
+                workflow=[('train', 1), ('val', 1)])
