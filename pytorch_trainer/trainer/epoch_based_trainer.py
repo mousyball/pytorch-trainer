@@ -8,6 +8,7 @@ import time
 import torch
 
 from .utils import sync_counter, get_host_info
+from .profiling import profiling
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -36,6 +37,7 @@ class EpochBasedTrainer(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_train_iter')
+            data_batch = self.data_to_device(data_batch)
             self.outputs = self.model.train_step(data_batch, **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
@@ -54,12 +56,14 @@ class EpochBasedTrainer(BaseTrainer):
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_val_iter')
+            data_batch = self.data_to_device(data_batch)
             self.outputs = self.model.val_step(data_batch, **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_epoch')
 
+    @profiling
     def fit(self, data_loaders, workflow):
         """Start training.
 

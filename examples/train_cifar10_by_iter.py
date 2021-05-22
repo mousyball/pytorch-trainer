@@ -42,6 +42,7 @@ class Net(nn.Module):
 
     def val_step(self, batch_data):
         inputs, labels = batch_data
+
         # forward
         outputs = self(inputs)
         losses = criterion(outputs, labels)

@@ -4,13 +4,18 @@ License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
 import os
+import random
 import os.path as osp
 from datetime import datetime
+
+import numpy as np
+import torch
 
 from .utils import get_logger, sync_counter
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
+from .profiling import bcolors
 from .hooks.base_hook import HOOKS
 
 TRAINER = Registry('trainer')
@@ -47,6 +52,7 @@ class BaseTrainer():
 
         # TODO: argument checker
         # TODO: discuss meta format for logging
+        # TODO: Handle optimizer, scheduler, device by config
         self.meta = meta
         self.model = model
         self.optimizer = optimizer
@@ -60,6 +66,7 @@ class BaseTrainer():
             if not osp.isdir(work_dir):
                 os.makedirs(work_dir)
         elif work_dir is None:
+            # TODO: Raise ValueError? Can be None?
             self.work_dir = None
         else:
             raise TypeError('Argument "work_dir" must be a string.')
@@ -72,6 +79,11 @@ class BaseTrainer():
             self._model_name = self.model.module.__class__.__name__
         else:
             self._model_name = self.model.__class__.__name__
+
+        # if cfg.SOLVER.DETERMINISTIC:
+        self.seed_torch(seed=1234)  # TODO: will control by cfg
+        self.device = self.get_device(gpu_id=0)  # TODO: will control by cfg
+        model.to(self.device)
 
         self.mode = None
         self._hooks = []
@@ -102,6 +114,16 @@ class BaseTrainer():
     def max_epoch(self):
         return self._max_epoch
 
+    def seed_torch(self, seed=0):
+        random.seed(seed)
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.deterministic = True
+
+        self.logger.info(f"[Warning] Using GLOBAL SEED!!! (seed_num={seed})")
+
     def _loss_parser(self, output):
         """Sum up the losses of output.
 
@@ -113,7 +135,6 @@ class BaseTrainer():
         total_loss = 0
         for value in output.values():
             total_loss += value
-        output['loss'] = total_loss
 
         return dict(loss=total_loss,
                     multi_loss=output)
@@ -177,3 +198,17 @@ class BaseTrainer():
         self._register_hook(config.LOGGER_HOOK)
         self._register_hook(config.HOOK)
         # self._register_hook(config.CUSTOM_HOOK)
+
+    def data_to_device(self, data):
+        inputs, labels = data
+        return inputs.to(self.device), labels.to(self.device)
+
+    def get_device(self, gpu_id):
+        device = torch.device("cuda:"+str(gpu_id)
+                              if torch.cuda.is_available()
+                              else "cpu")
+
+        self.logger.info(
+            f"Using device: {bcolors.OKGREEN}{device}{bcolors.ENDC}")
+
+        return device

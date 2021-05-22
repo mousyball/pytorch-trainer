@@ -3,6 +3,7 @@ import time
 import torch
 
 from .utils import IterDataLoader, sync_counter, get_host_info
+from .profiling import profiling
 from .base_trainer import TRAINER, BaseTrainer
 
 
@@ -39,7 +40,9 @@ class IterBasedTrainer(BaseTrainer):
         for i in range(self.max_inner_iter):
             self._inner_iter = i
             self.call_hook('before_train_iter')
-            self.outputs = self.model.train_step(next(data_loader), **kwargs)
+            batch_data = self.data_to_device(next(data_loader))
+            self.outputs = self.model.train_step(batch_data,
+                                                 **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_train_iter')
             self._iter += 1
@@ -59,12 +62,15 @@ class IterBasedTrainer(BaseTrainer):
         for i in range(self.max_inner_iter):
             self._inner_iter = i
             self.call_hook('before_val_iter')
-            self.outputs = self.model.val_step(next(data_loader))
+            batch_data = self.data_to_device(next(data_loader))
+            self.outputs = self.model.val_step(batch_data,
+                                               **kwargs)
             self.outputs = self._loss_parser(self.outputs)
             self.call_hook('after_val_iter')
 
         self.call_hook('after_val_batch')
 
+    @profiling
     def fit(self, data_loaders, workflow):
         """Start training
 
