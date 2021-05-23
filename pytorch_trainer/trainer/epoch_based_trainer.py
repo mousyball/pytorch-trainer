@@ -21,11 +21,12 @@ class EpochBasedTrainer(BaseTrainer):
                  max_epoch=0,
                  optimizer=None,
                  scheduler=None,
+                 device=None,
                  work_dir=None,
                  logger=None,
                  meta=None):
         super().__init__(model, max_epoch=max_epoch, optimizer=optimizer,
-                         scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
+                         scheduler=scheduler, device=device, work_dir=work_dir, logger=logger, meta=meta)
         self.base = 'epoch'
 
     def train(self, data_loader, **kwargs):

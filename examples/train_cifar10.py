@@ -6,6 +6,9 @@ import torchvision.transforms as transforms
 
 from networks.loss.builder import build_loss
 from pytorch_trainer.utils import get_cfg_defaults
+from pytorch_trainer.trainer.utils import (
+    get_device, get_logger, set_random_seed
+)
 from pytorch_trainer.optimizers.builder import build_optimizer
 from pytorch_trainer.schedulers.builder import build_scheduler
 from pytorch_trainer.trainer.epoch_based_trainer import EpochBasedTrainer
@@ -89,6 +92,23 @@ if __name__ == "__main__":
     # model
     model = Net()
 
+    # logger
+    work_dir = './dev/trainer/'
+    logger = get_logger(work_dir)
+
+    # set random seed
+    seed = config.trainer.seed
+    deterministic = config.trainer.deterministic
+    set_random_seed(logger,
+                    seed=seed,
+                    deterministic=deterministic)
+
+    # get device
+    gpu_ids = config.trainer.gpu_ids
+    device = get_device(logger,
+                        gpu_ids=gpu_ids,
+                        deterministic=deterministic)
+
     # dataloader
     val_loader, classes = dataloader()
     train_loader = val_loader
@@ -109,8 +129,9 @@ if __name__ == "__main__":
     trainer = EpochBasedTrainer(model,
                                 optimizer=optimizer,
                                 scheduler=scheduler,
-                                work_dir='./dev/trainer/',
-                                logger=None,
+                                device=device,
+                                work_dir=work_dir,
+                                logger=logger,
                                 meta={'commit': 'as65sadf45'},
                                 max_epoch=3)
 

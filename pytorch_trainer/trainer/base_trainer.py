@@ -4,18 +4,13 @@ License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
 import os
-import random
 import os.path as osp
 from datetime import datetime
-
-import numpy as np
-import torch
 
 from .utils import get_logger, sync_counter
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
-from .profiling import bcolors
 from .hooks.base_hook import HOOKS
 
 TRAINER = Registry('trainer')
@@ -28,6 +23,7 @@ class BaseTrainer():
                  max_epoch=0,
                  optimizer=None,
                  scheduler=None,
+                 device=None,
                  work_dir=None,
                  logger=None,
                  meta=None
@@ -57,6 +53,9 @@ class BaseTrainer():
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
+        self.device = device
+
+        self.model.to(self.device)
 
         # create work_dir
         if isinstance(work_dir, str):
@@ -71,6 +70,7 @@ class BaseTrainer():
         else:
             raise TypeError('Argument "work_dir" must be a string.')
 
+        self.logger = logger
         if logger is None:
             self.logger = get_logger(self.work_dir)
 
@@ -79,11 +79,6 @@ class BaseTrainer():
             self._model_name = self.model.module.__class__.__name__
         else:
             self._model_name = self.model.__class__.__name__
-
-        # if cfg.SOLVER.DETERMINISTIC:
-        self.seed_torch(seed=1234)  # TODO: will control by cfg
-        self.device = self.get_device(gpu_id=0)  # TODO: will control by cfg
-        model.to(self.device)
 
         self.mode = None
         self._hooks = []
@@ -113,16 +108,6 @@ class BaseTrainer():
     @property
     def max_epoch(self):
         return self._max_epoch
-
-    def seed_torch(self, seed=0):
-        random.seed(seed)
-        os.environ['PYTHONHASHSEED'] = str(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed(seed)
-        torch.backends.cudnn.deterministic = True
-
-        self.logger.info(f"[Warning] Using GLOBAL SEED!!! (seed_num={seed})")
 
     def _loss_parser(self, output):
         """Sum up the losses of output.
@@ -202,30 +187,3 @@ class BaseTrainer():
     def data_to_device(self, data):
         inputs, labels = data
         return inputs.to(self.device), labels.to(self.device)
-
-    def get_device(self, gpu_id):
-        device = torch.device("cuda:"+str(gpu_id)
-                              if torch.cuda.is_available()
-                              else "cpu")
-
-        if torch.cuda.is_available():
-            self.logger.info(
-                f"Using device: {bcolors.OKGREEN}{device}{bcolors.ENDC}"
-            )
-            # TODO: Multi-GPU
-            # self.logger.info(
-            #     "Using GPU: {0}, Main GPU: {1}".format(gpu_id, gpu_id[0]))
-        else:
-            self.logger.error(
-                "CUDA is not available.\n\n"
-                + "Please check:\n"
-                + "  1. Is GPU available?\n"
-                + "  2. Does CUDA version match the Nvidia driver version?\n"
-                + "  3. Is Nvidia driver off-line?\n"
-            )
-            exit()
-
-        # [NOTE] True for static network, False for dynamic network
-        torch.backends.cudnn.benchmark = True
-
-        return device

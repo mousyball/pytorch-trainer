@@ -1,5 +1,10 @@
 _BASE_: ./hook/trainer_hook.yaml
 
+trainer:
+  gpu_ids: [0]
+  seed: 1234
+  deterministic: True
+
 optimizer:
   NAME: SGD
   params:

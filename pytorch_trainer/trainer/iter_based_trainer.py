@@ -16,11 +16,12 @@ class IterBasedTrainer(BaseTrainer):
                  max_iter=0,
                  optimizer=None,
                  scheduler=None,
+                 device=None,
                  work_dir=None,
                  logger=None,
                  meta=None):
         super().__init__(model, max_iter=max_iter, optimizer=optimizer,
-                         scheduler=scheduler, work_dir=work_dir, logger=logger, meta=meta)
+                         scheduler=scheduler, device=device, work_dir=work_dir, logger=logger, meta=meta)
         self.base = 'iter'
         self._max_inner_iter = 0
 
