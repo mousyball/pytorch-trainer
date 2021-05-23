@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
+from networks.loss.builder import build_loss
 from pytorch_trainer.utils import get_cfg_defaults
+from pytorch_trainer.optimizers.builder import build_optimizer
 from pytorch_trainer.trainer.iter_based_trainer import IterBasedTrainer
 
 
@@ -92,11 +93,14 @@ if __name__ == "__main__":
     val_loader, classes = dataloader()
     train_loader = val_loader
 
-    # loss and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD([{'params': model.get_1x_lr()},
-                           {'params': model.get_10x_lr(), 'lr': 1e-2}
-                           ], lr=1e-3, momentum=0.9)
+    # loss
+    criterion = build_loss(config.loss)
+
+    # optimizer
+    lr = config.optimizer.params.lr
+    params_group = [{'params': model.get_1x_lr(), 'lr': lr * 1},
+                    {'params': model.get_10x_lr(), 'lr': lr * 10}]
+    optimizer = build_optimizer(params_group, config.optimizer)
 
     # scheduler
     scheduler = StepLR(optimizer, step_size=5, gamma=0.2)
