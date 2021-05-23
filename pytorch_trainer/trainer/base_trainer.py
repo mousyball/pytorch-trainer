@@ -208,7 +208,24 @@ class BaseTrainer():
                               if torch.cuda.is_available()
                               else "cpu")
 
-        self.logger.info(
-            f"Using device: {bcolors.OKGREEN}{device}{bcolors.ENDC}")
+        if torch.cuda.is_available():
+            self.logger.info(
+                f"Using device: {bcolors.OKGREEN}{device}{bcolors.ENDC}"
+            )
+            # TODO: Multi-GPU
+            # self.logger.info(
+            #     "Using GPU: {0}, Main GPU: {1}".format(gpu_id, gpu_id[0]))
+        else:
+            self.logger.error(
+                "CUDA is not available.\n\n"
+                + "Please check:\n"
+                + "  1. Is GPU available?\n"
+                + "  2. Does CUDA version match the Nvidia driver version?\n"
+                + "  3. Is Nvidia driver off-line?\n"
+            )
+            exit()
+
+        # [NOTE] True for static network, False for dynamic network
+        torch.backends.cudnn.benchmark = True
 
         return device
