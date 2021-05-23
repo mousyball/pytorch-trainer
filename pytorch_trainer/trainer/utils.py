@@ -1,9 +1,15 @@
 import os
+import random
 import logging
 import os.path as osp
 import datetime
 from socket import gethostname
 from getpass import getuser
+
+import numpy as np
+import torch
+
+from pytorch_trainer.trainer.profiling import bcolors
 
 
 def get_host_info():
@@ -77,3 +83,52 @@ def sync_counter(func):
         args[0]._epoch += 1
 
     return wrap
+
+
+def set_random_seed(logger, seed, deterministic=False):
+    """Set random seed.
+
+    Args:
+        logger (:obj:`logging`): logger.
+        seed (int): Seed to be used.
+        deterministic (bool, optional): Whether to get the deterministic result. Defaults to False.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    if deterministic:
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+    logger.warn(f"Using GLOBAL SEED!!! (seed_num={seed})")
+
+
+def get_device(logger, gpu_ids=[0], deterministic=False):
+    device = torch.device("cuda:"+str(gpu_ids[0])
+                          if torch.cuda.is_available()
+                          else "cpu")
+
+    if torch.cuda.is_available():
+        logger.info(
+            f"Using device - GPUs: {bcolors.OKGREEN}{gpu_ids}{bcolors.ENDC}, "
+            + f"Main GPU: {bcolors.OKGREEN}{gpu_ids[0]}{bcolors.ENDC}"
+        )
+    else:
+        logger.error(
+            "CUDA is not available.\n\n"
+            + "Please check:\n"
+            + "  1. Is GPU available?\n"
+            + "  2. Does CUDA version match the Nvidia driver version?\n"
+            + "  3. Is Nvidia driver off-line?\n"
+        )
+        exit()
+
+    # [NOTE] True for static network, False for dynamic network
+    # [NOTE] Turn off if you need a deterministic result.
+    torch.backends.cudnn.benchmark = False if deterministic else True
+
+    return device
