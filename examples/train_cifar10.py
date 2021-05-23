@@ -32,6 +32,9 @@ class Net(nn.Module):
                 yield param
 
     def train_step(self, batch_data):
+        '''
+        box_loss is a dummy loss for multiple loss demo purpose
+        '''
         inputs, labels = batch_data
 
         # forward
@@ -65,15 +68,15 @@ def dataloader():
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     # CIFAR10 train set 25K, val 5K. Use val set for demo purpose
-    testset = torchvision.datasets.CIFAR10(root='./dev/data', train=False,
-                                           download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+    test_set = torchvision.datasets.CIFAR10(root='./dev/data', train=False,
+                                            download=True, transform=transform)
+    val_loader = torch.utils.data.DataLoader(test_set, batch_size=4,
                                              shuffle=False, num_workers=2)
 
     classes = ('plane', 'car', 'bird', 'cat',
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-    return testloader, classes
+    return val_loader, classes
 
 
 if __name__ == "__main__":
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     # dataloader
     val_loader, classes = dataloader()
     train_loader = val_loader
-    print(len(train_loader))
+
     # loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD([{'params': model.get_1x_lr()},
