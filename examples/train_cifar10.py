@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 from networks.loss.builder import build_loss
 from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.trainer.utils import (
-    get_device, get_logger, set_random_seed
+    get_device, get_logger, create_work_dir, set_random_seed
 )
 from pytorch_trainer.optimizers.builder import build_optimizer
 from pytorch_trainer.schedulers.builder import build_scheduler
@@ -89,11 +89,11 @@ if __name__ == "__main__":
     config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
     config.merge_from_list(['HOOK.CheckpointHook.interval', 3])
 
-    # model
-    model = Net()
+    # create working directory
+    work_dir = './dev/trainer/'
+    work_dir = create_work_dir(work_dir)
 
     # logger
-    work_dir = './dev/trainer/'
     logger = get_logger(work_dir)
 
     # set random seed
@@ -108,6 +108,9 @@ if __name__ == "__main__":
     device = get_device(logger,
                         gpu_ids=gpu_ids,
                         deterministic=deterministic)
+
+    # model
+    model = Net()
 
     # dataloader
     val_loader, classes = dataloader()

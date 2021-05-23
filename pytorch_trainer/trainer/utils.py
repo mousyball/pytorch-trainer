@@ -132,3 +132,26 @@ def get_device(logger, gpu_ids=[0], deterministic=False):
     torch.backends.cudnn.benchmark = False if deterministic else True
 
     return device
+
+
+def create_work_dir(work_dir):
+    """Create working directory.
+
+    Args:
+        work_dir (str): path to working directory.
+
+    Returns:
+        str: modified working directory path with datetime.
+    """
+    if isinstance(work_dir, str):
+        date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        work_dir = osp.join(work_dir, '')[:-1] + f'_{date}'
+        work_dir = osp.abspath(work_dir)
+        if not osp.isdir(work_dir):
+            os.makedirs(work_dir)
+    elif work_dir is None:
+        raise ValueError('"work_dir" can not be None.')
+    else:
+        raise TypeError('Argument "work_dir" must be a string.')
+
+    return work_dir

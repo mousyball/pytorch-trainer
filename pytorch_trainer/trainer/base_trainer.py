@@ -3,11 +3,8 @@ File is modified from https://github.com/open-mmlab/mmcv
 License File Available at:
 https://github.com/open-mmlab/mmcv/blob/master/LICENSE
 """
-import os
-import os.path as osp
-from datetime import datetime
 
-from .utils import get_logger, sync_counter
+from .utils import sync_counter
 from ..utils import Registry
 from .priority import get_priority
 from .log_meter import LossMeter
@@ -53,26 +50,11 @@ class BaseTrainer():
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
+        self.logger = logger
+        self.work_dir = work_dir
         self.device = device
 
         self.model.to(self.device)
-
-        # create work_dir
-        if isinstance(work_dir, str):
-            date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            work_dir = osp.join(work_dir, '')[:-1] + f'_{date}'
-            self.work_dir = osp.abspath(work_dir)
-            if not osp.isdir(work_dir):
-                os.makedirs(work_dir)
-        elif work_dir is None:
-            # TODO: Raise ValueError? Can be None?
-            self.work_dir = None
-        else:
-            raise TypeError('Argument "work_dir" must be a string.')
-
-        self.logger = logger
-        if logger is None:
-            self.logger = get_logger(self.work_dir)
 
         # get model name from the model class
         if hasattr(self.model, 'module'):
