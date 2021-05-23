@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 
-def build(cfg, registry):
+def build(cfg, registry, **kwargs):
     """Build a network.
 
     Args:
@@ -19,8 +19,13 @@ def build(cfg, registry):
     # [NOTE] 'KeyError' is handled in registry.
     obj_cls = registry.get(obj_name)
 
-    # [Case]: LOSS
     if registry._name == 'loss':
         return obj_cls(**dict(_cfg))
+    elif registry._name == 'optimizer':
+        return obj_cls(kwargs['params_group'],
+                       **dict(_cfg.params))
+    elif registry._name == 'scheduler':
+        return obj_cls(kwargs['optimizer'],
+                       **dict(_cfg))
 
     return obj_cls(_cfg)
