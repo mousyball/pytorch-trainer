@@ -11,3 +11,9 @@ loss:
   weight: null
   reduction: sum
   ignore_index: -87
+
+scheduler:
+  NAME: StepLR
+  params:
+    step_size: 5
+    gamma: 0.2

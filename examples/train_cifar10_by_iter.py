@@ -3,11 +3,11 @@ import torch.nn as nn
 import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from torch.optim.lr_scheduler import StepLR
 
 from networks.loss.builder import build_loss
 from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.optimizers.builder import build_optimizer
+from pytorch_trainer.schedulers.builder import build_scheduler
 from pytorch_trainer.trainer.iter_based_trainer import IterBasedTrainer
 
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     optimizer = build_optimizer(params_group, config.optimizer)
 
     # scheduler
-    scheduler = StepLR(optimizer, step_size=5, gamma=0.2)
+    scheduler = build_scheduler(optimizer, config.scheduler)
 
     # initial trainer
     trainer = IterBasedTrainer(model,
