@@ -12,6 +12,7 @@ from pytorch_trainer.trainer import IterBasedTrainer, EpochBasedTrainer
 from pytorch_trainer.trainer.hooks import (
     OptimizerHook, SchedulerHook, CheckpointHook
 )
+from pytorch_trainer.trainer.utils import get_logger
 from pytorch_trainer.trainer.base_trainer import BaseTrainer
 
 
@@ -24,7 +25,7 @@ class Model(nn.Module):
         self.linear.bias.data.fill_(0.1)
 
     def forward(self, x):
-        return self.linear(x)
+        return self.linear(x[0])
 
     def train_step(self, x):
         return dict(loss=self(x)[0, 0])
@@ -33,10 +34,15 @@ class Model(nn.Module):
         return dict(loss=self(x)[0, 0])
 
 
-class model_wrapper:
-    def __init__(self):
-        # Mocking the situation of parallel module.
-        self.module = Model()
+class dummy_dataset:
+    def __init__(self, len=1):
+        self.len = len
+
+    def __getitem__(self, index):
+        return torch.ones((1, 2)), torch.ones((1, 1))
+
+    def __len__(self):
+        return self.len
 
 
 class Test_base_trainer:
@@ -46,7 +52,7 @@ class Test_base_trainer:
         BaseTrainer(Model(), work_dir=123)
 
     def test_load_parallel_model(self):
-        model = model_wrapper()
+        model = Model()
         trainer = BaseTrainer(model)
         assert trainer._model_name == 'Model'
 
@@ -58,14 +64,24 @@ class Test_epoch_based_trainer:
     config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
     config.merge_from_list(['LOGGER_HOOK.NAME', []])
 
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
+    # dataloader
+    data_loader = DataLoader(dummy_dataset())
+
     # model
     model = Model()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     trainer = EpochBasedTrainer(model,
+                                work_dir=work_dir,
+                                logger=logger,
                                 optimizer=optimizer,
                                 max_epoch=1)
     trainer.register_callback(config)
-    data_loader = DataLoader(torch.ones((1, 2)))
 
     def test_val(self):
         self.trainer._epoch = 0
@@ -88,14 +104,24 @@ class Test_iter_based_trainer:
     config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
     config.merge_from_list(['LOGGER_HOOK.NAME', []])
 
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
+    # dataloader
+    data_loader = DataLoader(dummy_dataset())
+
     # model
     model = Model()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
     trainer = IterBasedTrainer(model,
+                               work_dir=work_dir,
+                               logger=logger,
                                optimizer=optimizer,
                                max_iter=1)
     trainer.register_callback(config)
-    data_loader = DataLoader(torch.ones((1, 2)))
 
     def test_val(self):
         self.trainer._iter = 0
@@ -105,15 +131,26 @@ class Test_iter_based_trainer:
         assert round(self.trainer.outputs['loss'].item(), 2) == 1.1
 
     def test_max_inner_iter(self):
+        data_loader = DataLoader(dummy_dataset(5))
         self.trainer._iter = 0
-        self.trainer.fit([DataLoader(torch.ones((5, 2)))], [('train', -1)])
+        self.trainer.fit([data_loader], [('train', -1)])
 
         assert self.trainer.max_inner_iter == 5
 
     def test_data_loader(self):
+        class dummy_dataset:
+            def __init__(self):
+                self.data = torch.arange(4).view(2, 2).type(torch.float)
+
+            def __getitem__(self, index):
+                return self.data[index], torch.ones((1, 1))
+
+            def __len__(self):
+                return 2
+
         self.trainer._iter = 0
         self.trainer._max_iter = 2
-        data_loader = DataLoader(torch.arange(4).view(2, 2).type(torch.float))
+        data_loader = DataLoader(dummy_dataset())
         self.trainer.fit([data_loader], [('train', 1)])
 
         assert round(self.trainer.outputs['loss'].item(), 1) == 1.3
@@ -197,10 +234,26 @@ class Test_register_callback():
 
         trainer.register_callback(config)
 
-        assert len(trainer._hooks) == 6
+        assert len(trainer._hooks) == 7
 
 
 class Test_text_logger:
+    class dummy_dataset:
+        def __init__(self):
+            self.data = torch.arange(10).view(5, 2).type(torch.float)
+
+        def __getitem__(self, index):
+            return self.data[index], torch.ones((1, 1))
+
+        def __len__(self):
+            return 5
+
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
@@ -210,7 +263,7 @@ class Test_text_logger:
     config.merge_from_list(['LOGGER_HOOK.TextLoggerHook.interval', 3])
 
     # data loader
-    data_loader = DataLoader(torch.arange(10).view(5, 2).type(torch.float))
+    data_loader = DataLoader(dummy_dataset())
 
     # model
     model = Model()
@@ -218,12 +271,16 @@ class Test_text_logger:
 
     # trainer
     epoch_trainer = EpochBasedTrainer(model,
+                                      work_dir=work_dir,
+                                      logger=logger,
                                       optimizer=optimizer,
                                       max_epoch=1)
     epoch_trainer.register_callback(copy.deepcopy(config))
 
     # trainer
     iter_trainer = IterBasedTrainer(model,
+                                    work_dir=work_dir,
+                                    logger=logger,
                                     optimizer=optimizer,
                                     max_iter=5)
     iter_trainer.register_callback(copy.deepcopy(config))
@@ -250,6 +307,22 @@ class Test_text_logger:
 
 
 class Test_tensorboard_logger:
+    class dummy_dataset:
+        def __init__(self):
+            self.data = torch.arange(10).view(5, 2).type(torch.float)
+
+        def __getitem__(self, index):
+            return self.data[index], torch.ones((1, 1))
+
+        def __len__(self):
+            return 5
+
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
@@ -259,17 +332,16 @@ class Test_tensorboard_logger:
     config.merge_from_list(['LOGGER_HOOK.TensorboardLoggerHook.interval', 2])
 
     # data loader
-    data_loader = DataLoader(torch.arange(10).view(5, 2).type(torch.float))
+    data_loader = DataLoader(dummy_dataset())
 
     # model
     model = Model()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
 
-    work_dir = tempfile.mkdtemp()
-
     # trainer
     epoch_trainer = EpochBasedTrainer(model,
                                       work_dir=work_dir,
+                                      logger=logger,
                                       optimizer=optimizer,
                                       max_epoch=3)
     epoch_trainer.register_callback(copy.deepcopy(config))
@@ -277,6 +349,7 @@ class Test_tensorboard_logger:
     # trainer
     iter_trainer = IterBasedTrainer(model,
                                     work_dir=work_dir,
+                                    logger=logger,
                                     optimizer=optimizer,
                                     max_iter=5)
     iter_trainer.register_callback(copy.deepcopy(config))
@@ -286,12 +359,15 @@ class Test_tensorboard_logger:
         loss_meter = self.epoch_trainer.loss_meters['TensorboardLoggerHook']
 
         assert round(loss_meter.meters['loss'].avg.item(), 2) == 4.6
-        shutil.rmtree(self.epoch_trainer.work_dir)
 
     def test_iter_base(self):
         self.iter_trainer.fit([self.data_loader], [('train', 2)])
         loss_meter = self.iter_trainer.loss_meters['TensorboardLoggerHook']
 
         assert round(loss_meter.meters['loss'].avg.item(), 2) == 8.6
-        shutil.rmtree(self.work_dir)
-        shutil.rmtree(self.iter_trainer.work_dir)
+
+    handlers = logger.handlers[:]
+    for handler in handlers:
+        handler.close()
+        logger.removeHandler(handler)
+    shutil.rmtree(work_dir)
