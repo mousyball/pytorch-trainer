@@ -5,12 +5,13 @@ HOOK:
     - OptimizerHook
     - SchedulerHook
     - CheckpointHook
+    - ModelHook
   OptimizerHook:
     priority: LOW
     interval: 1
   CheckpointHook:
     priority: NORMAL
-    interval: -1
+    interval: 1
     out_dir:
     save_meta: False
     save_optimizer: True
@@ -18,3 +19,5 @@ HOOK:
     priority: VERY_LOW
     mode: default
     interval: 1
+  ModelHook:
+    priority: LOWEST
