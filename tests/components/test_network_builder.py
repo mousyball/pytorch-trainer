@@ -66,8 +66,7 @@ class TestClassification:
         y = torch.randint(low=0, high=n_class, size=(4,))
         # Training Step
         output_loss = net.train_step((x, y))
-        assert 'loss' in output_loss
-        assert 'multi_loss' in output_loss
+        assert 'cls_loss' in output_loss
 
     @pytest.mark.parametrize("filename", ['lenet.yaml', 'mynet.yaml'])
     def test_network_val_step(self, filename):
@@ -87,8 +86,7 @@ class TestClassification:
         y = torch.randint(low=0, high=n_class, size=(4,))
         # Training Step
         output_loss = net.val_step((x, y))
-        assert 'loss' in output_loss
-        assert 'multi_loss' in output_loss
+        assert 'cls_loss' in output_loss
 
     def test_backbone_builder_with_keyerror(self):
         FILENAME = 'lenet.yaml'
