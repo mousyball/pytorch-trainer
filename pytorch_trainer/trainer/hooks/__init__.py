@@ -1,3 +1,4 @@
+from .model import ModelHook
 from .logger import (
     LoggerHook, LossLoggerHook, TextLoggerHook, TensorboardLoggerHook
 )
@@ -8,5 +9,5 @@ from .checkpoint import CheckpointHook
 
 __all__ = [
     'Hook', 'OptimizerHook', 'SchedulerHook', 'LoggerHook', 'CheckpointHook',
-    'LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook',
+    'ModelHook', 'LossLoggerHook', 'TensorboardLoggerHook', 'TextLoggerHook',
 ]
