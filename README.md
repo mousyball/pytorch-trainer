@@ -30,3 +30,17 @@ pre-commit install
 > Fix the version `fvcore` to `0.1.2.post20210128`
 
 * Support multiple inheritance of config
+
+## Demo
+
+epoch base trainer
+
+```bash
+python examples/train_cifar10.py -cfg configs/pytorch_trainer/epoch_trainer.yaml
+```
+
+iteration base trainer
+
+```bash
+python examples/train_cifar10.py -cfg configs/pytorch_trainer/iter_trainer.yaml
+```
