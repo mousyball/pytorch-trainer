@@ -83,8 +83,7 @@ class BaseNetwork(INetwork):
         outputs = self.forward(inputs)
         loss = self.criterion(outputs, labels)
 
-        return dict(loss=loss,
-                    multi_loss=dict(cls_loss=loss))
+        return dict(cls_loss=loss)
 
     def val_step(self, batch_data):
         """Define validation step."""
@@ -92,8 +91,7 @@ class BaseNetwork(INetwork):
         outputs = self.forward(inputs)
         loss = self.criterion(outputs, labels)
 
-        return dict(loss=loss,
-                    multi_loss=dict(cls_loss=loss))
+        return dict(cls_loss=loss)
 
     def forward(self, x):
         """Define forward propagation."""
