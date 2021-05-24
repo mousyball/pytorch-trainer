@@ -1,1 +1,24 @@
 _BASE_: ./hook/trainer_hook.yaml
+
+trainer:
+  gpu_ids: [0]
+  seed: 1234
+  deterministic: True
+
+optimizer:
+  NAME: SGD
+  params:
+    lr: 1.0e-3
+    momentum: 0.9
+
+loss:
+  NAME: CrossEntropyLoss
+  weight: null
+  reduction: sum
+  ignore_index: -87
+
+scheduler:
+  NAME: StepLR
+  params:
+    step_size: 5
+    gamma: 0.2

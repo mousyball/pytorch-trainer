@@ -1,12 +1,16 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from torch.optim.lr_scheduler import StepLR
 
+from networks.loss.builder import build_loss
 from pytorch_trainer.utils import get_cfg_defaults
+from pytorch_trainer.trainer.utils import (
+    get_device, get_logger, create_work_dir, set_random_seed
+)
+from pytorch_trainer.optimizers.builder import build_optimizer
+from pytorch_trainer.schedulers.builder import build_scheduler
 from pytorch_trainer.trainer.iter_based_trainer import IterBasedTrainer
 
 
@@ -85,6 +89,26 @@ if __name__ == "__main__":
     config.merge_from_file('configs/pytorch_trainer/trainer.yaml')
     config.merge_from_list(['HOOK.CheckpointHook.interval', 3])
 
+    # create working directory
+    work_dir = './dev/trainer/'
+    work_dir = create_work_dir(work_dir)
+
+    # logger
+    logger = get_logger(work_dir)
+
+    # set random seed
+    seed = config.trainer.seed
+    deterministic = config.trainer.deterministic
+    set_random_seed(logger,
+                    seed=seed,
+                    deterministic=deterministic)
+
+    # get device
+    gpu_ids = config.trainer.gpu_ids
+    device = get_device(logger,
+                        gpu_ids=gpu_ids,
+                        deterministic=deterministic)
+
     # model
     model = Net()
 
@@ -92,21 +116,25 @@ if __name__ == "__main__":
     val_loader, classes = dataloader()
     train_loader = val_loader
 
-    # loss and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD([{'params': model.get_1x_lr()},
-                           {'params': model.get_10x_lr(), 'lr': 1e-2}
-                           ], lr=1e-3, momentum=0.9)
+    # loss
+    criterion = build_loss(config.loss)
+
+    # optimizer
+    lr = config.optimizer.params.lr
+    params_group = [{'params': model.get_1x_lr(), 'lr': lr * 1},
+                    {'params': model.get_10x_lr(), 'lr': lr * 10}]
+    optimizer = build_optimizer(params_group, config.optimizer)
 
     # scheduler
-    scheduler = StepLR(optimizer, step_size=5, gamma=0.2)
+    scheduler = build_scheduler(optimizer, config.scheduler)
 
     # initial trainer
     trainer = IterBasedTrainer(model,
                                optimizer=optimizer,
                                scheduler=scheduler,
-                               work_dir='./dev/trainer/',
-                               logger=None,
+                               device=device,
+                               work_dir=work_dir,
+                               logger=logger,
                                meta={'commit': 'as65sadf45'},
                                max_iter=15000)
 
