@@ -8,7 +8,7 @@ trainer:
   gpu_ids: [0]
   seed: 1234
   deterministic: True
-  max_epoch: 3
+  work_dir: ./dev/trainer/
   meta:
     commit: as65sadf45
 

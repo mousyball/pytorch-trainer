@@ -9,9 +9,19 @@ from pytorch_trainer.trainer import build_trainer_api
 
 def argparser():
     parser = argparse.ArgumentParser(
-        description='Trainer demo', formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=40))
-    parser.add_argument('-cfg', '--config', default='configs/pytorch_trainer/epoch_trainer.yaml',
-                        type=str, metavar='PATH', help=r'config path')
+        description='Trainer demo',
+        formatter_class=lambda prog: argparse.HelpFormatter(
+            prog,
+            max_help_position=40
+        )
+    )
+
+    parser.add_argument('-cfg',
+                        '--config',
+                        default='configs/pytorch_trainer/epoch_trainer.yaml',
+                        type=str,
+                        metavar='PATH',
+                        help=r'config path')
 
     return parser.parse_args()
 
