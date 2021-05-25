@@ -19,8 +19,7 @@ def build_trainer_api(cfg_path):
     config = parse_yaml_config(cfg_path)
 
     # create working directory
-    work_dir = './dev/trainer/'
-    work_dir = create_work_dir(work_dir)
+    work_dir = create_work_dir(config.trainer.work_dir)
 
     # logger
     logger = get_logger(work_dir)
@@ -43,6 +42,7 @@ def build_trainer_api(cfg_path):
 
     # optimizer
     lr = config.optimizer.params.lr
+    # TODO: Call by config in the future.
     params_group = [{'params': model.get_lr_params(['backbone']), 'lr': lr * 1},
                     {'params': model.get_lr_params(['criterion']), 'lr': lr * 10}]
     optimizer = build_optimizer(params_group, config.optimizer)
