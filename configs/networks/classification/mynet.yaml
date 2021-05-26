@@ -2,11 +2,11 @@ custom:
   name: 'MyLeNet'
   model:
     name: 'LeNet'
-    num_class: 8
+    num_class: 10
   loss:
     name: 'MyLeNetLoss'
     weight: null
     reduction: 'mean'
-    ignore_index: -89
+    ignore_index: -87
   group_info:
     - [[model], 1]
