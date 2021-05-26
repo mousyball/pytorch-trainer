@@ -88,6 +88,10 @@ class EpochBasedTrainer(BaseTrainer):
                 mode, epochs = flow
                 epoch_trainer = getattr(self, mode)
 
+                # default as -1 means val 1 epoch
+                if epochs == -1:
+                    epochs = 1
+
                 for _ in range(epochs):
                     if mode == 'train' and self.epoch >= self.max_epoch:
                         break

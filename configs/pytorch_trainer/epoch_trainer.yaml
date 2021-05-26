@@ -1,0 +1,25 @@
+_BASE_: [./hook/trainer_hook.yaml, ../networks/classification/lenet.yaml]
+
+trainer:
+  NAME: EpochBasedTrainer
+  params:
+    max_epoch: 3
+  workflow: [['train', 1], ['val', -1]]
+  gpu_ids: [0]
+  seed: 1234
+  deterministic: True
+  work_dir: ./dev/trainer/
+  meta:
+    commit: as65sadf45
+
+optimizer:
+  NAME: SGD
+  params:
+    lr: 1.0e-3
+    momentum: 0.9
+
+scheduler:
+  NAME: StepLR
+  params:
+    step_size: 5
+    gamma: 0.2

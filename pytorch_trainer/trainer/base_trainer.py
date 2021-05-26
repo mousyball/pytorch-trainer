@@ -54,8 +54,6 @@ class BaseTrainer():
         self.work_dir = work_dir
         self.device = device
 
-        self.model.to(self.device)
-
         # get model name from the model class
         if hasattr(self.model, 'module'):
             self._model_name = self.model.module.__class__.__name__

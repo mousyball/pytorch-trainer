@@ -2,7 +2,7 @@ import os.path as osp
 
 from pytorch_trainer.utils.config import parse_yaml_config
 
-ROOT_PATH = './test/components/'
+ROOT_PATH = './tests/components/'
 
 
 class TestConfig:

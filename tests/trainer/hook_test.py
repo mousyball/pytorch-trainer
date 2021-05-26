@@ -13,6 +13,7 @@ from torch.optim.lr_scheduler import StepLR
 
 from pytorch_trainer.utils import get_cfg_defaults
 from pytorch_trainer.trainer import IterBasedTrainer, EpochBasedTrainer
+from pytorch_trainer.trainer.utils import get_logger
 
 
 class Model(nn.Module):
@@ -22,7 +23,7 @@ class Model(nn.Module):
         self.linear = nn.Linear(2, 1)
 
     def forward(self, x):
-        return self.linear(x)
+        return self.linear(x[0])
 
     def train_step(self, x):
         return dict(loss=self(x))
@@ -31,9 +32,28 @@ class Model(nn.Module):
         return dict(loss=self(x))
 
 
+class dummy_dataset:
+
+    def __getitem__(self, index):
+        return torch.ones((1, 2)), torch.ones((1, 1))
+
+    def __len__(self):
+        return 5
+
+
 class Test_epoch_based:
+    # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
+
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
+    # dataloader
+    data_loader = DataLoader(dummy_dataset())
 
     @pytest.mark.parametrize("cfg, expected",
                              [
@@ -50,13 +70,14 @@ class Test_epoch_based:
         # model
         torch.manual_seed(0)
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
         trainer = EpochBasedTrainer(model,
+                                    work_dir=self.work_dir,
+                                    logger=self.logger,
                                     optimizer=optim.SGD(
                                         model.parameters(), lr=0.02),
                                     max_epoch=5)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 1)])
+        trainer.fit([self.data_loader], [('train', 1)])
         assert round(trainer.outputs['loss'].item(), 2) == expected
 
     @pytest.mark.parametrize("cfg, expected",
@@ -75,15 +96,16 @@ class Test_epoch_based:
         # model
         torch.manual_seed(0)
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
         optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
         scheduler = StepLR(optimizer, step_size=2, gamma=0.2)
         trainer = EpochBasedTrainer(model,
+                                    work_dir=self.work_dir,
+                                    logger=self.logger,
                                     optimizer=optimizer,
                                     scheduler=scheduler,
                                     max_epoch=2)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 1)])
+        trainer.fit([self.data_loader], [('train', 1)])
         assert trainer.optimizer.param_groups[0]['lr'] == expected
 
     @pytest.mark.parametrize("cfg, expected",
@@ -98,30 +120,40 @@ class Test_epoch_based:
             ['HOOK.NAME', ['OptimizerHook', 'CheckpointHook']])
         config.HOOK.CheckpointHook.update(cfg)
 
-        # temporarily work directory
-        work_dir = tempfile.mkdtemp()
-
         # model
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
         optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
         trainer = EpochBasedTrainer(model,
+                                    work_dir=self.work_dir,
+                                    logger=self.logger,
                                     optimizer=optimizer,
-                                    work_dir=work_dir,
                                     max_epoch=2)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 1)])
+        trainer.fit([self.data_loader], [('train', 1)])
         output_path = osp.join(trainer.work_dir, 'checkpoint', '*.pth')
 
         assert osp.basename(glob(output_path)[0]) == expected
 
-        shutil.rmtree(work_dir)
-        shutil.rmtree(trainer.work_dir)
+    handlers = logger.handlers[:]
+    for handler in handlers:
+        handler.close()
+        logger.removeHandler(handler)
+    shutil.rmtree(work_dir)
 
 
 class Test_iter_based:
+    # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
+
+    # work directory
+    work_dir = tempfile.mkdtemp()
+
+    # logger
+    logger = get_logger(work_dir)
+
+    # dataloader
+    data_loader = DataLoader(dummy_dataset())
 
     @pytest.mark.parametrize("cfg, expected",
                              [
@@ -138,14 +170,14 @@ class Test_iter_based:
         # model
         torch.manual_seed(0)
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
-
         trainer = IterBasedTrainer(model,
+                                   work_dir=self.work_dir,
+                                   logger=self.logger,
                                    optimizer=optim.SGD(
                                        model.parameters(), lr=0.02),
                                    max_iter=10)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 1)])
+        trainer.fit([self.data_loader], [('train', 1)])
         assert round(trainer.outputs['loss'].item(), 2) == expected
 
     @pytest.mark.parametrize("cfg, expected",
@@ -163,17 +195,18 @@ class Test_iter_based:
 
         torch.manual_seed(0)
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
 
         optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
         scheduler = StepLR(optimizer, step_size=2, gamma=0.2)
 
         trainer = IterBasedTrainer(model,
+                                   work_dir=self.work_dir,
+                                   logger=self.logger,
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    max_iter=4)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 2)])
+        trainer.fit([self.data_loader], [('train', 2)])
 
         assert trainer.optimizer.param_groups[0]['lr'] == expected
 
@@ -189,24 +222,24 @@ class Test_iter_based:
             ['HOOK.NAME', ['OptimizerHook', 'CheckpointHook']])
         config.HOOK.CheckpointHook.update(cfg)
 
-        # temporarily work directory
-        work_dir = tempfile.mkdtemp()
-
         # model
         model = Model()
-        data_loader = DataLoader(torch.ones((5, 2)))
         optimizer = torch.optim.SGD(model.parameters(), lr=0.02)
         trainer = IterBasedTrainer(model,
+                                   work_dir=self.work_dir,
+                                   logger=self.logger,
                                    optimizer=optimizer,
-                                   work_dir=work_dir,
                                    max_iter=2)
         trainer.register_callback(config)
-        trainer.fit([data_loader], [('train', 1)])
+        trainer.fit([self.data_loader], [('train', 1)])
         output_path = osp.join(trainer.work_dir, 'checkpoint', '*.pth')
 
         assert osp.basename(glob(output_path)[0]) == expected
 
-        shutil.rmtree(work_dir)
-        shutil.rmtree(trainer.work_dir)
+    handlers = logger.handlers[:]
+    for handler in handlers:
+        handler.close()
+        logger.removeHandler(handler)
+    shutil.rmtree(work_dir)
 
     # TODO: logger hook test
