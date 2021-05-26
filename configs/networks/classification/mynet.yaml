@@ -8,3 +8,5 @@ custom:
     weight: null
     reduction: 'mean'
     ignore_index: -89
+  group_info:
+    - [[model], 1]

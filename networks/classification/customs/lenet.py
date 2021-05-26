@@ -24,7 +24,7 @@ class MyLeNet(BaseNetwork):
     def get_lr_params(self, group_list):
         """Get LR group for optimizer."""
         # [NOTE] Make sure that config matches the network route.
-        modules = [self.model.__getattr__(m) for m in group_list]
+        modules = [self.__getattr__(m) for m in group_list]
         for i in range(len(modules)):
             for m in modules[i].named_modules():
                 if isinstance(m[1], nn.Conv2d) \

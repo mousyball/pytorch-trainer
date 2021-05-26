@@ -77,6 +77,36 @@ class BaseNetwork(INetwork):
                         if p.requires_grad:
                             yield p
 
+    def get_optimizer_params(self, group_info, lr):
+        """Get optimizer parameters from config.
+
+        Args:
+            group_info (Tuple(List, Union[int, float])): This contains
+                group_list that sends to the optimizer and corresponding
+                weight for scaling.
+            lr (float): learning rate
+
+        Returns:
+            List: parameters group for optimizer.
+        """
+        # Check if config name matches the attribute name.
+        for groups in group_info:
+            group_list = groups[0]
+            for group in group_list:
+                if group not in dir(self):
+                    assert False, f"{group} not in {self.__dict__.keys()}"
+
+        params_group = []
+        for group_list, weight in group_info:
+            params_group.append(
+                {
+                    'params': self.get_lr_params(group_list),
+                    'lr': lr * weight
+                }
+            )
+
+        return params_group
+
     def train_step(self, batch_data):
         """Define training step."""
         inputs, labels = batch_data

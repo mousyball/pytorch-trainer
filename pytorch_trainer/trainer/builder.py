@@ -42,9 +42,8 @@ def build_trainer_api(cfg_path):
 
     # optimizer
     lr = config.optimizer.params.lr
-    # TODO: Call by config in the future.
-    params_group = [{'params': model.get_lr_params(['backbone']), 'lr': lr * 1},
-                    {'params': model.get_lr_params(['criterion']), 'lr': lr * 10}]
+    group_info = config.network.group_info
+    params_group = model.get_optimizer_params(group_info, lr)
     optimizer = build_optimizer(params_group, config.optimizer)
 
     # scheduler

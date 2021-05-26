@@ -8,3 +8,5 @@ network:
     weight: null
     reduction: 'sum'
     ignore_index: -87
+  group_info:
+    - [[backbone], 1]
