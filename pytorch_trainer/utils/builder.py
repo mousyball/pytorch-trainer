@@ -13,7 +13,7 @@ def build(cfg, registry, **kwargs):
     """
     _cfg = deepcopy(cfg)
 
-    obj_name = _cfg.pop('NAME')
+    obj_name = _cfg.pop('name')
     assert isinstance(obj_name, str)
 
     # [NOTE] 'KeyError' is handled in registry.

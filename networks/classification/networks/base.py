@@ -39,10 +39,10 @@ class BaseNetwork(INetwork):
 
     def _construct_network(self, cfg):
         """Construct network from builder."""
-        if 'BACKBONE' not in cfg:
-            raise KeyError("Key 'BACKBONE' is not in config.")
-        self.backbone = build_backbone(cfg.BACKBONE)
-        self.criterion = build_loss(cfg.LOSS)
+        if 'backbone' not in cfg:
+            raise KeyError("Key 'backbone' is not in config.")
+        self.backbone = build_backbone(cfg.backbone)
+        self.criterion = build_loss(cfg.loss)
 
     def freeze(self):
         """Freeze components or layers.

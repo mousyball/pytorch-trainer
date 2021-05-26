@@ -8,10 +8,10 @@ def test_train_inference(cfg_path):
     # Case: Gerneral definition of network
     cfg = parse_yaml_config(cfg_path)
 
-    if cfg.get('NETWORK'):
-        n_class = cfg.get('NETWORK').get('BACKBONE').get('NUM_CLASS')
-    elif cfg.get('CUSTOM'):
-        n_class = cfg.get('CUSTOM').get('MODEL').get('NUM_CLASS')
+    if cfg.get('network'):
+        n_class = cfg.get('network').get('backbone').get('num_class')
+    elif cfg.get('custom'):
+        n_class = cfg.get('custom').get('model').get('num_class')
     else:
         assert False
 

@@ -22,12 +22,12 @@ def build_network(cfg):
     Returns:
         nn.Module: built nn module.
     """
-    key = 'CUSTOM'
+    key = 'custom'
     _cfg = cfg.get(key)
     if _cfg is not None:
         return build(_cfg, CUSTOMS)
 
-    key = 'NETWORK'
+    key = 'network'
     _cfg = cfg.get(key)
     if _cfg is None:
         raise KeyError(f"Key '{key}' is not in config.")

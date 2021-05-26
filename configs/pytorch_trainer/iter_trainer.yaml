@@ -1,7 +1,7 @@
 _BASE_: [./hook/trainer_hook.yaml, ../networks/classification/lenet.yaml]
 
 trainer:
-  NAME: IterBasedTrainer
+  name: IterBasedTrainer
   params:
     max_iter: 15000
   workflow: [['train', 5000], ['val', -1]]
@@ -13,13 +13,13 @@ trainer:
     commit: as65sadf45
 
 optimizer:
-  NAME: SGD
+  name: SGD
   params:
     lr: 1.0e-3
     momentum: 0.9
 
 scheduler:
-  NAME: StepLR
+  name: StepLR
   params:
     step_size: 5
     gamma: 0.2

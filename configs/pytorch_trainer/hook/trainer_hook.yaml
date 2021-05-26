@@ -1,7 +1,7 @@
 _BASE_ : ./logger/logger_hook.yaml
 
-HOOK:
-  NAME:
+hook:
+  name:
     - OptimizerHook
     - SchedulerHook
     - CheckpointHook

@@ -63,9 +63,9 @@ class Test_epoch_based:
     def test_optimzier_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
-        config.merge_from_list(['HOOK.NAME', ['OptimizerHook']])
-        config.HOOK.OptimizerHook.update(cfg)
+        config.merge_from_list(['logger_hook.name', []])
+        config.merge_from_list(['hook.name', ['OptimizerHook']])
+        config.hook.OptimizerHook.update(cfg)
 
         # model
         torch.manual_seed(0)
@@ -88,10 +88,10 @@ class Test_epoch_based:
     def test_scheduler_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
+        config.merge_from_list(['logger_hook.name', []])
         config.merge_from_list(
-            ['HOOK.NAME', ['OptimizerHook', 'SchedulerHook']])
-        config.HOOK.SchedulerHook.update(cfg)
+            ['hook.name', ['OptimizerHook', 'SchedulerHook']])
+        config.hook.SchedulerHook.update(cfg)
 
         # model
         torch.manual_seed(0)
@@ -115,10 +115,10 @@ class Test_epoch_based:
     def test_checkpoint_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
+        config.merge_from_list(['logger_hook.name', []])
         config.merge_from_list(
-            ['HOOK.NAME', ['OptimizerHook', 'CheckpointHook']])
-        config.HOOK.CheckpointHook.update(cfg)
+            ['hook.name', ['OptimizerHook', 'CheckpointHook']])
+        config.hook.CheckpointHook.update(cfg)
 
         # model
         model = Model()
@@ -163,9 +163,9 @@ class Test_iter_based:
     def test_optimzier_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
-        config.merge_from_list(['HOOK.NAME', ['OptimizerHook']])
-        config.HOOK.OptimizerHook.update(cfg)
+        config.merge_from_list(['logger_hook.name', []])
+        config.merge_from_list(['hook.name', ['OptimizerHook']])
+        config.hook.OptimizerHook.update(cfg)
 
         # model
         torch.manual_seed(0)
@@ -188,10 +188,10 @@ class Test_iter_based:
     def test_scheduler_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
+        config.merge_from_list(['logger_hook.name', []])
         config.merge_from_list(
-            ['HOOK.NAME', ['OptimizerHook', 'SchedulerHook']])
-        config.HOOK.SchedulerHook.update(cfg)
+            ['hook.name', ['OptimizerHook', 'SchedulerHook']])
+        config.hook.SchedulerHook.update(cfg)
 
         torch.manual_seed(0)
         model = Model()
@@ -217,10 +217,10 @@ class Test_iter_based:
     def test_checkpoint_hook(self, cfg, expected):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['LOGGER_HOOK.NAME', []])
+        config.merge_from_list(['logger_hook.name', []])
         config.merge_from_list(
-            ['HOOK.NAME', ['OptimizerHook', 'CheckpointHook']])
-        config.HOOK.CheckpointHook.update(cfg)
+            ['hook.name', ['OptimizerHook', 'CheckpointHook']])
+        config.hook.CheckpointHook.update(cfg)
 
         # model
         model = Model()

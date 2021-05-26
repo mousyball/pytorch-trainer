@@ -51,7 +51,7 @@ def demo_simple(cfg_path=None):
     # Setup transforms
     CFG_PATH = parser.config_path if cfg_path is None else cfg_path
     cfg = parse_yaml_config(CFG_PATH)
-    tv_cfg = cfg.TRANSFORMS.transform_visualization
+    tv_cfg = cfg.transforms.transform_visualization
     train_transform = []
     for feature in tv_cfg.features:
         feat_cfg = getattr(tv_cfg, feature)
@@ -110,7 +110,7 @@ def demo_dextr(cfg_path=None):
     # Setup transforms
     CFG_PATH = parser.config_path
     cfg = parse_yaml_config(CFG_PATH)
-    tv_cfg = cfg.TRANSFORMS.transform_visualization
+    tv_cfg = cfg.transforms.transform_visualization
     train_transform = []
     for feature in tv_cfg.features:
         feat_cfg = getattr(tv_cfg, feature)

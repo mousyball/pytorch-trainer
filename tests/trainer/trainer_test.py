@@ -61,8 +61,8 @@ class Test_epoch_based_trainer:
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
-    config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
-    config.merge_from_list(['LOGGER_HOOK.NAME', []])
+    config.merge_from_list(['hook.OptimizerHook.interval', 2])
+    config.merge_from_list(['logger_hook.name', []])
 
     # work directory
     work_dir = tempfile.mkdtemp()
@@ -101,8 +101,8 @@ class Test_iter_based_trainer:
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
-    config.merge_from_list(['HOOK.OptimizerHook.interval', 2])
-    config.merge_from_list(['LOGGER_HOOK.NAME', []])
+    config.merge_from_list(['hook.OptimizerHook.interval', 2])
+    config.merge_from_list(['logger_hook.name', []])
 
     # work directory
     work_dir = tempfile.mkdtemp()
@@ -168,12 +168,12 @@ class Test_register_callback():
         '''Test if optimizer hook has been correctly registered'''
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['HOOK.NAME', ['OptimizerHook']])
-        config.HOOK.OptimizerHook.update(cfg)
+        config.merge_from_list(['hook.name', ['OptimizerHook']])
+        config.hook.OptimizerHook.update(cfg)
 
         # trainer
         trainer = EpochBasedTrainer('model')
-        trainer._register_hook(config.HOOK)
+        trainer._register_hook(config.hook)
         for hook in trainer._hooks:
             if isinstance(hook, OptimizerHook):
                 assert len(trainer._hooks) == 1
@@ -189,14 +189,14 @@ class Test_register_callback():
     def test_regist_scheduler_hook(self, cfg):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['HOOK.NAME', ['SchedulerHook']])
-        config.HOOK.SchedulerHook.update(cfg)
+        config.merge_from_list(['hook.name', ['SchedulerHook']])
+        config.hook.SchedulerHook.update(cfg)
 
         # trainer
         trainer = EpochBasedTrainer('model',
                                     scheduler='not_none')
 
-        trainer._register_hook(config.HOOK)
+        trainer._register_hook(config.hook)
         for hook in trainer._hooks:
             if isinstance(hook, SchedulerHook):
                 assert len(trainer._hooks) == 1
@@ -212,13 +212,13 @@ class Test_register_callback():
     def test_regist_checkpoint_hook(self, cfg):
         # config
         config = copy.deepcopy(self.config)
-        config.merge_from_list(['HOOK.NAME', ['CheckpointHook']])
-        config.HOOK.CheckpointHook.update(cfg)
+        config.merge_from_list(['hook.name', ['CheckpointHook']])
+        config.hook.CheckpointHook.update(cfg)
 
         # trainer
         trainer = EpochBasedTrainer('model')
 
-        trainer._register_hook(config.HOOK)
+        trainer._register_hook(config.hook)
         for hook in trainer._hooks:
             if isinstance(hook, CheckpointHook):
                 assert True and len(trainer._hooks) == 1
@@ -257,10 +257,10 @@ class Test_text_logger:
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
-    config.merge_from_list(['HOOK.OptimizerHook.interval', 10])
+    config.merge_from_list(['hook.OptimizerHook.interval', 10])
     config.merge_from_list(
-        ['LOGGER_HOOK.NAME', ['LossLoggerHook', 'TextLoggerHook']])
-    config.merge_from_list(['LOGGER_HOOK.TextLoggerHook.interval', 3])
+        ['logger_hook.name', ['LossLoggerHook', 'TextLoggerHook']])
+    config.merge_from_list(['logger_hook.TextLoggerHook.interval', 3])
 
     # data loader
     data_loader = DataLoader(dummy_dataset())
@@ -326,10 +326,10 @@ class Test_tensorboard_logger:
     # config
     config = get_cfg_defaults()
     config.merge_from_file('configs/pytorch_trainer/hook/trainer_hook.yaml')
-    config.merge_from_list(['HOOK.OptimizerHook.interval', 100])
+    config.merge_from_list(['hook.OptimizerHook.interval', 100])
     config.merge_from_list(
-        ['LOGGER_HOOK.NAME', ['LossLoggerHook', 'TensorboardLoggerHook']])
-    config.merge_from_list(['LOGGER_HOOK.TensorboardLoggerHook.interval', 2])
+        ['logger_hook.name', ['LossLoggerHook', 'TensorboardLoggerHook']])
+    config.merge_from_list(['logger_hook.TensorboardLoggerHook.interval', 2])
 
     # data loader
     data_loader = DataLoader(dummy_dataset())
