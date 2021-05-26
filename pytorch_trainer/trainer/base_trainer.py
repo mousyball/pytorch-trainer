@@ -141,7 +141,7 @@ class BaseTrainer():
         self._hooks.insert(0, hook)
 
     def _register_hook(self, config):
-        for name in config.get('NAME'):
+        for name in config.get('name'):
             # get arguments
             kwargs = config.get(name)
             priority = kwargs.pop('priority')
@@ -151,7 +151,7 @@ class BaseTrainer():
             self.register_hook(log_hook, priority=priority)
 
     def _register_loss_meter(self, config):
-        for key in config.NAME:
+        for key in config.name:
             self.loss_meters[key] = LossMeter()
 
     def register_callback(self,
@@ -159,9 +159,9 @@ class BaseTrainer():
         """Register hooks for training.
             append hook into list self.hooks
         """
-        self._register_loss_meter(config.LOGGER_HOOK)
-        self._register_hook(config.LOGGER_HOOK)
-        self._register_hook(config.HOOK)
+        self._register_loss_meter(config.logger_hook)
+        self._register_hook(config.logger_hook)
+        self._register_hook(config.hook)
         # self._register_hook(config.CUSTOM_HOOK)
 
     def data_to_device(self, data):

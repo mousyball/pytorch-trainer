@@ -14,7 +14,7 @@ class LeNet(BaseBackbone):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, cfg.NUM_CLASS)
+        self.fc3 = nn.Linear(84, cfg.num_class)
 
     def init_weights(self):
         """Initialize the weights in your network.

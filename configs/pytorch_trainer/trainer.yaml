@@ -6,19 +6,19 @@ trainer:
   deterministic: True
 
 optimizer:
-  NAME: SGD
+  name: SGD
   params:
     lr: 1.0e-3
     momentum: 0.9
 
 loss:
-  NAME: CrossEntropyLoss
+  name: CrossEntropyLoss
   weight: null
   reduction: sum
   ignore_index: -87
 
 scheduler:
-  NAME: StepLR
+  name: StepLR
   params:
     step_size: 5
     gamma: 0.2

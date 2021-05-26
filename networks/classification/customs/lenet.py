@@ -18,11 +18,12 @@ class MyLeNet(BaseNetwork):
             * Overwrite the parent method if needed.
             * Parameters checking isn't involved if customization is utilized.
         """
-        self.model = LeNet(cfg.MODEL)
-        self.criterion = build_loss(cfg.LOSS)
+        self.model = LeNet(cfg.model)
+        self.criterion = build_loss(cfg.loss)
 
     def get_lr_params(self, group_list):
         """Get LR group for optimizer."""
+        # [NOTE] Make sure that config matches the network route.
         modules = [self.__getattr__(m) for m in group_list]
         for i in range(len(modules)):
             for m in modules[i].named_modules():
@@ -41,7 +42,7 @@ class MyLeNet(BaseNetwork):
 class LeNet(nn.Module):
     def __init__(self, cfg):
         super(LeNet, self).__init__()
-        num_class = cfg.get('NUM_CLASS')
+        num_class = cfg.get('num_class')
 
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)

@@ -23,8 +23,8 @@ class TestClassification:
     def test_network_builder_with_keyerror(self):
         FILENAME = 'lenet.yaml'
         cfg = parse_yaml_config(osp.join(ROOT_PATH, FILENAME))
-        # Remove keyword: 'NETWORK'
-        cfg.pop('NETWORK')
+        # Remove keyword: 'network'
+        cfg.pop('network')
         with pytest.raises(KeyError) as excinfo:
             _ = build_network(cfg)
         assert "KeyError" in str(excinfo)
@@ -37,10 +37,10 @@ class TestClassification:
         net = build_network(cfg)
         net.eval()
         # Initialize input
-        if cfg.get('NETWORK'):
-            n_class = cfg.get('NETWORK').get('BACKBONE').get('NUM_CLASS')
-        elif cfg.get('CUSTOM'):
-            n_class = cfg.get('CUSTOM').get('MODEL').get('NUM_CLASS')
+        if cfg.get('network'):
+            n_class = cfg.get('network').get('backbone').get('num_class')
+        elif cfg.get('custom'):
+            n_class = cfg.get('custom').get('model').get('num_class')
         else:
             assert False
         x = torch.rand(4, 3, 32, 32)
@@ -56,10 +56,10 @@ class TestClassification:
         net = build_network(cfg)
         net.train()
         # Initialize input
-        if cfg.get('NETWORK'):
-            n_class = cfg.get('NETWORK').get('BACKBONE').get('NUM_CLASS')
-        elif cfg.get('CUSTOM'):
-            n_class = cfg.get('CUSTOM').get('MODEL').get('NUM_CLASS')
+        if cfg.get('network'):
+            n_class = cfg.get('network').get('backbone').get('num_class')
+        elif cfg.get('custom'):
+            n_class = cfg.get('custom').get('model').get('num_class')
         else:
             assert False
         x = torch.rand(4, 3, 32, 32)
@@ -76,10 +76,10 @@ class TestClassification:
         net = build_network(cfg)
         net.eval()
         # Initialize input
-        if cfg.get('NETWORK'):
-            n_class = cfg.get('NETWORK').get('BACKBONE').get('NUM_CLASS')
-        elif cfg.get('CUSTOM'):
-            n_class = cfg.get('CUSTOM').get('MODEL').get('NUM_CLASS')
+        if cfg.get('network'):
+            n_class = cfg.get('network').get('backbone').get('num_class')
+        elif cfg.get('custom'):
+            n_class = cfg.get('custom').get('model').get('num_class')
         else:
             assert False
         x = torch.rand(4, 3, 32, 32)
@@ -91,8 +91,8 @@ class TestClassification:
     def test_backbone_builder_with_keyerror(self):
         FILENAME = 'lenet.yaml'
         cfg = parse_yaml_config(osp.join(ROOT_PATH, FILENAME))
-        # Remove keyword: 'BACKBONE'
-        cfg.NETWORK.pop('BACKBONE')
+        # Remove keyword: 'backbone'
+        cfg.network.pop('backbone')
         with pytest.raises(KeyError) as excinfo:
             _ = build_network(cfg)
         assert "KeyError" in str(excinfo)
@@ -102,7 +102,7 @@ class TestClassification:
         cfg = parse_yaml_config(osp.join(ROOT_PATH, FILENAME))
         # Modify keyword name
         cfg.defrost()
-        cfg.NETWORK.BACKBONE.NAME = 'WrongLeNet'
+        cfg.network.backbone.name = 'WrongLeNet'
         with pytest.raises(KeyError) as excinfo:
             _ = build_network(cfg)
         assert "KeyError" in str(excinfo)

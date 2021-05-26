@@ -1,5 +1,5 @@
-TRANSFORMS:
-  OUTPUT_DIR: './output/'
+transforms:
+  output_dir: './output/'
   transform_visualization:
     features:
       - album_random_affine

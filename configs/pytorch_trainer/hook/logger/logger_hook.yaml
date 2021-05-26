@@ -1,5 +1,5 @@
-LOGGER_HOOK:
-  NAME:
+logger_hook:
+  name:
     - LossLoggerHook
     - TensorboardLoggerHook
     - TextLoggerHook
