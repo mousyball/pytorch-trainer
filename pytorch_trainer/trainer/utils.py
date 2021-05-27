@@ -108,6 +108,16 @@ def set_random_seed(logger, seed, deterministic=False):
 
 
 def get_device(logger, gpu_ids=[0], deterministic=False):
+    """Get CPU or GPU device.
+
+    Args:
+        logger (:obj:`logging`): logger
+        gpu_ids (List[int]): id of gpus are used for training. Defaults to [0].
+        deterministic (bool, optional): deterministic mode in training. Defaults to False.
+
+    Returns:
+        torch.device: device for training
+    """
     device = torch.device("cuda:"+str(gpu_ids[0])
                           if torch.cuda.is_available()
                           else "cpu")
@@ -155,3 +165,33 @@ def create_work_dir(work_dir):
         raise TypeError('Argument "work_dir" must be a string.')
 
     return work_dir
+
+
+def load_pretained_weight(model, dir_path, weight_name, logger):
+    """Load pretrained weight from path.
+
+    Args:
+        model (nn.module): built model
+        dir_path (str): directory path to weight file
+        model_name (str): name of pretrained weight
+        logger (:obj:`logging`): logger
+    """
+    weight_path = osp.join(dir_path, weight_name)
+    if not os.path.isfile(weight_path):
+        assert False, "Path to pretrained weight does not exist."
+
+    state_dict = torch.load(weight_path,
+                            map_location=lambda storage, loc: storage)
+
+    # [NOTE] Strict mode means the weight should totally match to the model.
+    unexpected, missing = model.load_state_dict(state_dict, strict=True)
+    if unexpected:
+        # ckpt key name not exist in networks
+        # [EXAMPLE] network(backbone) + weight(backbone+psp) => unexpected keys (psp)
+        logger.info("===unexpected===\n{0}".format(unexpected))
+    if missing:
+        # networks key name not exist in ckpt
+        # [EXAMPLE] network(backbone+psp) + weight(backbone) => missing keys (psp)
+        logger.info("===missing===\n{0}".format(missing))
+
+    # [TODO] Handle 'module' prefix of loading distributed weight.

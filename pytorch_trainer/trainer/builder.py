@@ -1,6 +1,7 @@
 from pytorch_trainer.utils import parse_yaml_config
 from pytorch_trainer.trainer.utils import (
-    get_device, get_logger, create_work_dir, set_random_seed
+    get_device, get_logger, create_work_dir, set_random_seed,
+    load_pretained_weight
 )
 from pytorch_trainer.utils.builder import build
 from networks.classification.builder import build_network
@@ -39,6 +40,15 @@ def build_trainer_api(cfg_path):
 
     # model
     model = build_network(config)  # Net()
+
+    # load pretrained weight
+    if config.trainer.pretrain.load_weight:
+        dir_path = config.trainer.pretrain.dir_path
+        weight_name = config.trainer.pretrain.weight_name
+        load_pretained_weight(model,
+                              dir_path,
+                              weight_name,
+                              logger)
 
     # optimizer
     lr = config.optimizer.params.lr
