@@ -9,6 +9,10 @@ trainer:
   seed: 1234
   deterministic: True
   work_dir: ./dev/trainer/
+  pretrain:
+    load_weight: True
+    dir_path: ''
+    weight_name: ''
   meta:
     commit: as65sadf45
 

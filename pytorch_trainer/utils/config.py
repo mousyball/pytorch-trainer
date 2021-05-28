@@ -78,16 +78,20 @@ class CfgNode(_CfgNode):
             BASE_VALUE = cfg.pop(BASE_KEY)
             _base_group = {}
             if isinstance(BASE_VALUE, list):
-                # Merge cfg into _base_group first.
-                merge_a_into_b(cfg, _base_group)
-
+                # Merge the ancestor yamls first.
                 for _BASE_VALUE in BASE_VALUE:
                     base_cfg = _load_base_cfg(_BASE_VALUE)
-                    # Merge each base_cfg into _base_group
+                    # Merge each base_cfg into _base_group.
                     merge_a_into_b(base_cfg, _base_group)
+
+                # Merge the entry cfg into _base_group at last.
+                merge_a_into_b(cfg, _base_group)
+
                 return _base_group
             elif isinstance(BASE_VALUE, str):
+                # Load the ancestor yaml first.
                 base_cfg = _load_base_cfg(BASE_VALUE)
+                # Then, merge the children into the ancestor.
                 merge_a_into_b(cfg, base_cfg)
                 return base_cfg
 
