@@ -184,14 +184,16 @@ def load_pretained_weight(model, dir_path, weight_name, logger):
                             map_location=lambda storage, loc: storage)
 
     # [NOTE] Strict mode means the weight should totally match to the model.
-    unexpected, missing = model.load_state_dict(state_dict, strict=True)
+    unexpected, missing = model.load_state_dict(state_dict, strict=False)
     if unexpected:
-        # ckpt key name not exist in networks
+        # Key name of ckpt does not exist in network.
         # [EXAMPLE] network(backbone) + weight(backbone+psp) => unexpected keys (psp)
-        logger.info("===unexpected===\n{0}".format(unexpected))
+        logger.error("===unexpected===\n{0}".format(unexpected))
+        assert unexpected == [], "Got unexpected weights."
     if missing:
-        # networks key name not exist in ckpt
+        # Key name of network does not exist in ckpt.
         # [EXAMPLE] network(backbone+psp) + weight(backbone) => missing keys (psp)
-        logger.info("===missing===\n{0}".format(missing))
+        logger.error("===missing===\n{0}".format(missing))
+        assert missing == [], "Got missing weights."
 
     # [TODO] Handle 'module' prefix of loading distributed weight.
