@@ -43,6 +43,8 @@ class TestLoadPretraintedWeight:
                                   weight_name,
                                   logger)
 
+        shutil.rmtree(WORK_DIR)
+
     @pytest.mark.xfail(reason="Load an incompleted weight.")
     def test_load_pretrained_weight_xfail(self):
         # load config
@@ -78,4 +80,4 @@ class TestLoadPretraintedWeight:
                                   weight_name,
                                   logger)
 
-    shutil.rmtree(WORK_DIR)
+        shutil.rmtree(WORK_DIR)
