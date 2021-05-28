@@ -14,6 +14,14 @@ CFG_PATH = './configs/pytorch_trainer/iter_trainer.yaml'
 WORK_DIR = './dev/tests/'
 
 
+@pytest.fixture()
+def cleanup():
+    # Enter
+    yield
+    # Exit
+    shutil.rmtree(WORK_DIR)
+
+
 class TestLoadPretraintedWeight:
     def test_load_pretrained_weight(self):
         # load config
@@ -43,10 +51,9 @@ class TestLoadPretraintedWeight:
                                   weight_name,
                                   logger)
 
-        shutil.rmtree(WORK_DIR)
-
     @pytest.mark.xfail(reason="Load an incompleted weight.")
-    def test_load_pretrained_weight_xfail(self):
+    def test_load_pretrained_weight_xfail(self, cleanup):
+        """Use fixture to clean up the tempfile."""
         # load config
         config = parse_yaml_config(CFG_PATH)
 
@@ -79,5 +86,3 @@ class TestLoadPretraintedWeight:
                                   dir_path,
                                   weight_name,
                                   logger)
-
-        shutil.rmtree(WORK_DIR)
