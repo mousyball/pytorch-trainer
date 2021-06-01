@@ -1,4 +1,7 @@
-_BASE_: [./hook/trainer_hook.yaml, ../networks/classification/lenet.yaml]
+_BASE_: [./hook/trainer_hook.yaml,
+         ../networks/classification/lenet.yaml,
+         ../datasets/cifar10.yaml,
+]
 
 trainer:
   name: EpochBasedTrainer
@@ -9,6 +12,10 @@ trainer:
   seed: 1234
   deterministic: True
   work_dir: ./dev/trainer/
+  pretrain:
+    load_weight: False
+    dir_path: ''
+    weight_name: ''
   meta:
     commit: as65sadf45
 

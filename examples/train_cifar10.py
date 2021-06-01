@@ -1,9 +1,5 @@
 import argparse
 
-import torch
-import torchvision
-import torchvision.transforms as transforms
-
 from pytorch_trainer.trainer import build_trainer_api
 
 
@@ -26,31 +22,11 @@ def argparser():
     return parser.parse_args()
 
 
-def dataloader():
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
-    # CIFAR10 train set 25K, val 5K. Use val set for demo purpose
-    test_set = torchvision.datasets.CIFAR10(root='./dev/data', train=False,
-                                            download=True, transform=transform)
-    val_loader = torch.utils.data.DataLoader(test_set, batch_size=2,
-                                             shuffle=False, num_workers=0)
-
-    classes = ('plane', 'car', 'bird', 'cat',
-               'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-    return val_loader, classes
-
-
 if __name__ == "__main__":
     parser = argparser()
-    trainer, workflow = build_trainer_api(parser.config)
-
-    # dataloader
-    val_loader, classes = dataloader()
-    train_loader = val_loader
+    trainer, data_loader, workflow = build_trainer_api(parser.config)
 
     # training: demo will train 15K iteration(3 epoch), run validation 3 time and save 3 weight
+    train_loader, val_loader = data_loader
     trainer.fit(data_loaders=[train_loader, val_loader],
                 workflow=workflow)
