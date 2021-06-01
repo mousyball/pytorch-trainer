@@ -1,0 +1,28 @@
+dataset:
+  train:
+    name: custom_cifar10
+    params:
+      root: './dev/data'
+      train: True
+      download: True
+  val:
+    name: cifar10
+    params:
+      root: './dev/data'
+      train: False
+      download: False
+
+
+dataloader:
+  train:
+    name: dataloader
+    params:
+      batch_size: 4
+      shuffle: False
+      num_workers: 2
+  val:
+    name: dataloader
+    params:
+      batch_size: 4
+      shuffle: False
+      num_workers: 2
