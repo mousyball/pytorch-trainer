@@ -14,7 +14,7 @@ def argparser():
 
     parser.add_argument('-cfg',
                         '--config',
-                        default='configs/pytorch_trainer/epoch_trainer.yaml',
+                        default='configs/custom/classification/lenet/iter_trainer.yaml',
                         type=str,
                         metavar='PATH',
                         help=r'config path')

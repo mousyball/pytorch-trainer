@@ -1,33 +1,7 @@
-_BASE_: [./hook/trainer_hook.yaml,
-         ../networks/classification/lenet.yaml,
-         ../datasets/cifar10.yaml,
-         ../transforms/custom_transform.yaml
-]
+_BASE_: ./trainer.yaml
 
 trainer:
   name: EpochBasedTrainer
   params:
     max_epoch: 3
-  workflow: [['train', 1], ['val', -1]]
-  gpu_ids: [0]
-  seed: 1234
-  deterministic: True
-  work_dir: ./dev/trainer/
-  pretrain:
-    load_weight: False
-    dir_path: ''
-    weight_name: ''
-  meta:
-    commit: as65sadf45
-
-optimizer:
-  name: SGD
-  params:
-    lr: 1.0e-3
-    momentum: 0.9
-
-scheduler:
-  name: StepLR
-  params:
-    step_size: 5
-    gamma: 0.2
+  workflow: [["train", 1], ["val", -1]]

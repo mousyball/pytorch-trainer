@@ -1,17 +1,18 @@
+_BASE_: ../transforms/custom_transform.yaml
+
 dataset:
   train:
     name: custom_cifar10
     params:
-      root: './dev/data'
+      root: "./dev/data"
       train: True
       download: True
   val:
-    name: cifar10
+    name: custom_cifar10
     params:
-      root: './dev/data'
+      root: "./dev/data"
       train: False
       download: False
-
 
 dataloader:
   train:

@@ -1,21 +1,23 @@
 _BASE_: ./hook/trainer_hook.yaml
 
 trainer:
+  workflow: [["train", 1], ["val", -1]]
   gpu_ids: [0]
   seed: 1234
-  deterministic: True
+  deterministic: False
+  work_dir: ./dev/trainer/
+  pretrain:
+    load_weight: False
+    dir_path: ""
+    weight_name: ""
+  meta:
+    commit: as65sadf45
 
 optimizer:
   name: SGD
   params:
     lr: 1.0e-3
     momentum: 0.9
-
-loss:
-  name: CrossEntropyLoss
-  weight: null
-  reduction: sum
-  ignore_index: -87
 
 scheduler:
   name: StepLR
