@@ -1,6 +1,7 @@
 _BASE_: [./hook/trainer_hook.yaml,
          ../networks/classification/lenet.yaml,
          ../datasets/cifar10.yaml,
+         ../transforms/custom_transform.yaml
 ]
 trainer:
   name: IterBasedTrainer

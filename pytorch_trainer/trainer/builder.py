@@ -1,6 +1,5 @@
-import torchvision.transforms as transforms
-
 from datasets.builder import build_dataloader
+from transforms.builder import build_custom_transform
 from pytorch_trainer.utils import parse_yaml_config
 from pytorch_trainer.trainer.utils import (
     get_device, get_logger, create_work_dir, set_random_seed,
@@ -35,10 +34,8 @@ def build_trainer_api(cfg_path):
                     seed=seed,
                     deterministic=deterministic)
 
-    # TODO: create transform by builder
-    train_transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    # create transform
+    train_transform = build_custom_transform(config.transform)
     val_transform = train_transform
     transform = [train_transform, val_transform]
 
