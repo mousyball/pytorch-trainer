@@ -1,3 +1,5 @@
+from datasets.builder import build_dataloader
+from transforms.builder import build_custom_transform
 from pytorch_trainer.utils import parse_yaml_config
 from pytorch_trainer.trainer.utils import (
     get_device, get_logger, create_work_dir, set_random_seed,
@@ -31,6 +33,14 @@ def build_trainer_api(cfg_path):
     set_random_seed(logger,
                     seed=seed,
                     deterministic=deterministic)
+
+    # create transform
+    train_transform = build_custom_transform(config.transform)
+    val_transform = train_transform
+    transform = [train_transform, val_transform]
+
+    # create dataloader
+    dataloader = build_dataloader(config, transform)
 
     # get device
     gpu_ids = config.trainer.gpu_ids
@@ -77,4 +87,4 @@ def build_trainer_api(cfg_path):
     # register all callback
     trainer.register_callback(config)
 
-    return trainer, config.trainer.workflow
+    return trainer, dataloader, config.trainer.workflow

@@ -109,7 +109,7 @@ class BaseNetwork(INetwork):
 
     def train_step(self, batch_data):
         """Define training step."""
-        inputs, labels = batch_data
+        inputs, labels = batch_data['inputs'], batch_data['targets']
         outputs = self.forward(inputs)
         loss = self.criterion(outputs, labels)
 
@@ -117,7 +117,7 @@ class BaseNetwork(INetwork):
 
     def val_step(self, batch_data):
         """Define validation step."""
-        inputs, labels = batch_data
+        inputs, labels = batch_data['inputs'], batch_data['targets']
         outputs = self.forward(inputs)
         loss = self.criterion(outputs, labels)
 

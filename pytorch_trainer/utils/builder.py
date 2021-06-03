@@ -27,7 +27,7 @@ def build(cfg, registry, **kwargs):
     elif registry._name == 'scheduler':
         return obj_cls(kwargs['optimizer'],
                        **dict(_cfg.params))
-    elif registry._name == 'trainer':
+    elif registry._name in ['trainer', 'dataset', 'dataloader']:
         return obj_cls(**kwargs,
                        **dict(_cfg.params))
 

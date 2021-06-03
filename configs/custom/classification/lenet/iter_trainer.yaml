@@ -1,0 +1,13 @@
+_BASE_:
+  [
+    "../../../datasets/cifar10.yaml",
+    "../../../networks/classification/lenet.yaml",
+    "../../../pytorch_trainer/iter_trainer.yaml",
+  ]
+
+trainer:
+  params:
+    max_iter: 30000
+  deterministic: True
+  work_dir: ./dev/classification/iter_trainer/lenet_cifar10
+  workflow: [["train", 5000], ["val", -1]]

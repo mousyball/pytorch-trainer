@@ -165,5 +165,4 @@ class BaseTrainer():
         # self._register_hook(config.CUSTOM_HOOK)
 
     def data_to_device(self, data):
-        inputs, labels = data
-        return inputs.to(self.device), labels.to(self.device)
+        return {k: v.to(self.device) for k, v in data.items()}

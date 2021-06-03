@@ -13,7 +13,7 @@ def argparser():
 
     parser.add_argument('-dataset',
                         '--dataset_path',
-                        default='./datasets/voc/',
+                        default='./dev/data/voc/',
                         type=str,
                         metavar='PATH',
                         help=r'Specify dataset path.')
