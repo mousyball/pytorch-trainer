@@ -10,37 +10,40 @@ pip install -r requirements/runtime.txt
 pip install -r requirements/dev.txt
 ```
 
-* Pycocotool
+### Pycocotool
 
 ```bash
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
 ```
 
-## Pre-commit Hook
+### Pre-commit Hook
 
-> for DEV
+* for development
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-## Config
+### Config
 
-> Fix the version `fvcore` to `0.1.2.post20210128`
-
+* Fix the version of `fvcore` to `0.1.2.post20210128`
 * Support multiple inheritance of config
 
 ## Demo
 
-epoch base trainer
+* Epoch-based trainer
 
 ```bash
-python examples/train_cifar10.py -cfg configs/pytorch_trainer/epoch_trainer.yaml
+python examples/train_cifar10.py -cfg configs/custom/classification/lenet/epoch_trainer.yaml
 ```
 
-iteration base trainer
+* Iteration-based trainer
 
 ```bash
-python examples/train_cifar10.py -cfg configs/pytorch_trainer/iter_trainer.yaml
+python examples/train_cifar10.py -cfg configs/custom/classification/lenet/iter_trainer.yaml
 ```
+
+## Get started
+
+* Check the step-by-step [tutorial](./docs/tutorial.md) in the docs.
