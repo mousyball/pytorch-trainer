@@ -1,0 +1,7 @@
+_BASE_: ./trainer.yaml
+
+trainer:
+  name: EpochBasedTrainer
+  params:
+    max_epoch: 3
+  workflow: [["train", 1], ["val", -1]]

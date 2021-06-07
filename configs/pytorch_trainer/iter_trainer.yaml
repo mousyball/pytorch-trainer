@@ -1,0 +1,7 @@
+_BASE_: ./trainer.yaml
+
+trainer:
+  name: IterBasedTrainer
+  params:
+    max_iter: 300000
+  workflow: [["train", 1], ["val", -1]]

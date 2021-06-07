@@ -1,0 +1,12 @@
+network:
+  name: 'LeNet'
+  backbone:
+    name: 'LeNet'
+    num_class: 10
+  loss:
+    name: 'CrossEntropyLoss'
+    weight: null
+    reduction: 'sum'
+    ignore_index: -87
+  group_info:
+    - [[backbone], 1]

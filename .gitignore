@@ -1,3 +1,8 @@
+# Develop DIR
+dev/
+datasets/helpers/*
+!datasets/helpers
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

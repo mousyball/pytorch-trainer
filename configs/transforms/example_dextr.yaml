@@ -1,0 +1,83 @@
+transforms:
+  output_dir: './output/'
+  transform_visualization:
+    features:
+      - album_random_scale
+      - album_random_affine
+      - custom_crop_from_mask
+      - album_resize
+      - custom_extreme_points
+      - custom_to_image
+      - custom_concat_inputs
+      - custom_collect
+      - custom_to_tensor
+    album_random_affine:
+      name: AlbumRandomAffine
+      params:
+        degree: [-45, 45]
+        prob: 1.0
+        border_mode: 0
+        value: 0
+      input_key: [image, mask]
+      output_key: [image, mask]
+      visualize: True
+    album_random_scale:
+      name: AlbumRandomScale
+      params:
+        scale_limit: [0.75, 1.25]
+        prob: 1.0
+        interpolation: 1
+      input_key: [image, mask]
+      output_key: [image, mask]
+      visualize: True
+    custom_crop_from_mask:
+      name: CustomCropFromMask
+      params:
+        relax: 50
+        zero_pad: True
+        mask_key: mask
+      input_key: [image, mask]
+      output_key: [image, mask]
+      visualize: True
+    album_resize:
+      name: AlbumResize
+      params:
+        height: 512
+        width: 512
+      input_key: [image, mask]
+      output_key: [image, mask]
+      visualize: True
+    custom_extreme_points:
+      name: CustomExtremePoints
+      params:
+        pert: 5
+        sigma: 10
+      input_key: [mask]
+      output_key: [extreme_points]
+      visualize: True
+    custom_to_image:
+      name: CustomToImage
+      params:
+        custom_max: 255
+      input_key: [extreme_points]
+      output_key: [extreme_points]
+      visualize: False
+    custom_concat_inputs:
+      name: CustomConcatInputs
+      params: null
+      input_key: [image, extreme_points]
+      output_key: [concat]
+      visualize: False
+    custom_collect:
+      name: CustomCollect
+      params: null
+      input_key: [concat, mask]
+      visualize: True
+    custom_to_tensor:
+      name: CustomToTensor
+      params:
+        except_key: [meta]
+      input_key: null
+      output_key: null
+      visualize: False
+

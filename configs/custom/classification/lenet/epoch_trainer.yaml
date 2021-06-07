@@ -1,0 +1,13 @@
+_BASE_:
+  [
+    "../../../datasets/cifar10.yaml",
+    "../../../networks/classification/lenet.yaml",
+    "../../../pytorch_trainer/epoch_trainer.yaml",
+  ]
+
+trainer:
+  params:
+    max_epoch: 10
+  deterministic: True
+  work_dir: ./dev/classification/epoch_trainer/lenet_cifar10
+  workflow: [["train", 1]]
